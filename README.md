@@ -25,7 +25,7 @@ Advisory agents do not edit files. Writer agents have narrowly stated ownership 
 - `opencode.json` — project configuration, default agent, project instructions, and named local `cockpit` reference to `..`.
 - `AGENTS.md` — shared project guardrails and source-of-truth rules.
 - `.opencode/command/cockpit-plugin.md` — `/cockpit-plugin` entry point.
-- `.opencode/agent/` — primary orchestrator and focused specialists.
+- `.opencode/agent/` — primary orchestrator, focused specialists, and `cockpit-feedback-reviewer` for regressions and user feedback.
 - `.opencode/skills/` — reusable Cockpit workflow and API guidance, with deeper reference notes where useful.
 
 ## Authoritative references
@@ -40,3 +40,16 @@ Advisory agents do not edit files. Writer agents have narrowly stated ownership 
 - [Creating plugins for the Cockpit user interface](https://cockpit-project.org/blog/creating-plugins-for-the-cockpit-user-interface.html) — introductory and illustrative only; use the current guide and maintained source as normative references.
 
 The adjacent `../` Cockpit repository is also a key local reference. Its maintained examples, source, tests, and packaging files may be more specific to the checked-out version than general guidance.
+
+## Feedback and regressions
+
+After testing a plugin, provide the reviewer with the exact symptom, browser console output, service journal, or reproduction steps. It can classify and trace issues such as PatternFly usability problems, JavaScript errors, failed service actions, or data that was written but is not displayed, then implement an explicitly assigned fix and regression coverage.
+
+Example:
+
+```text
+Use cockpit-feedback-reviewer for this report: switching tabs throws
+"Cannot read properties of null", and writing a key reports success but the
+value is not shown after navigation. Inspect the current diff, reproduce it,
+fix only the assigned files, and run focused checks.
+```

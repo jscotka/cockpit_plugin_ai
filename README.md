@@ -21,49 +21,22 @@ Inspect the existing patterns first, ask about privilege or persistence risks,
 then implement the page and focused checks.
 ```
 
-## Prompt examples
+## Start with one good prompt
 
-Copy, adapt, and include the target path:
-
-```text
-/cockpit-plugin In /path/to/repo, create a new Cockpit plugin page for managing
-the example service. Reuse existing dependencies and patterns; define loading,
-empty, error, and success states, then add focused tests.
-```
+Copy this template, replace the path and request, and add any constraints:
 
 ```text
-/cockpit-plugin In /path/to/repo, add Redis/Valkey configuration for host,
-port, TLS, username, and password. Explain privilege, validation, persistence,
-and secret-storage assumptions before implementation. Support the existing
-project's versions and package conventions.
+/cockpit-plugin In /path/to/plugin-repo, implement [desired feature].
+First inspect the existing architecture, dependencies, Cockpit/PatternFly
+patterns, backend options, tests, and packaging. Ask before assuming privilege,
+secrets, persistence, or destructive behavior. Then implement the smallest
+maintainable change with loading, empty, success, and error states, focused
+tests, documentation, translations, and verification.
 ```
 
-```text
-/cockpit-plugin In /path/to/repo, redesign only the UI of the existing page.
-Keep behavior, transport, APIs, and persistence unchanged. Use the project's
-PatternFly version, preserve keyboard access and dark/responsive states, and
-verify the rendered layout.
-```
-
-```text
-/cockpit-plugin In /path/to/repo, compare cockpit.spawn, DBus, and channels for
-this backend operation. Inspect current code and recommend a transport with
-explicit lifecycle, privilege, error, and input-handling trade-offs; do not
-implement until the decision is approved.
-```
-
-```text
-/cockpit-plugin In /path/to/repo, debug this browser error: "Cannot read
-properties of null" when switching tabs. Reproduce it, inspect the current
-diff and console evidence, fix only the target repository, and add regression
-coverage.
-```
-
-```text
-/improve-cockpit-agents Summarize this completed task's reusable gap, final
-diff, and validation evidence. Update only suite guidance; reject lessons that
-are specific to one plugin.
-```
+For later feedback, include the exact browser error, service output, or
+reproduction steps. To improve this suite after a completed task, run
+`/improve-cockpit-agents` with the final diff and validation evidence.
 
 ## Who does what
 

@@ -115,12 +115,49 @@ installed, choose **Install Valkey** and confirm the administrator operation.
 
 After installation, the page can:
 
+- explain that Valkey is an in-memory key-value database and that this page
+  manages the Fedora service, its configuration, database 0 keys, and the
+  local messages list;
 - display and refresh the state of `valkey.service`;
 - start, stop, and restart the service;
 - edit these directives in `/etc/valkey/valkey.conf`: `port`, `bind`,
   `protected-mode`, and `maxmemory`;
 - query `valkey-cli INFO` for instantaneous operations per second, connected
-  clients, and used memory.
+  clients, used memory, uptime, the database 0 key count, and (when reported)
+  peak memory and memory fragmentation. This internal status is separate from
+  the systemd service status.
+
+### Database 0 key operations
+
+The key form operates only on database 0. It accepts a non-empty key (maximum
+256 UTF-8 bytes, with no NUL) and a free-form text value (maximum 1 MiB, with
+no NUL). JSON is plain text and is not parsed or reformatted. Read uses
+`valkey-cli --raw -n 0 GET`; an additional `EXISTS` request distinguishes a
+missing key from an existing empty value. Write and delete use fixed argument
+arrays for `SET` and `DEL` and require Cockpit administrator authorization.
+Delete confirms the action and reports whether Valkey deleted a key. Reads do
+not require administrator authorization.
+
+### Messages
+
+The page treats the local Valkey database 0 list key named `messages` as its
+message source. It runs
+`valkey-cli --raw -n 0 LRANGE messages -10 -1` and displays those last 10 list
+entries. A case-insensitive substring filter is applied in the browser to the
+already-loaded entries; it does not run another command. The section has its
+own refresh button, and the page refresh also refreshes it. It does not use
+pub/sub or enumerate keys.
+
+### Refresh and states
+
+**Refresh all** reloads service status, internal Valkey status, configuration,
+metrics, and messages. Loading, empty, and error states are shown for the
+corresponding sections. Configuration values are loaded from the current
+`/etc/valkey/valkey.conf`; if any configuration field has been edited locally,
+refresh reports a warning and leaves those edits intact. Saving uses the
+existing concurrency-safe `cockpit.file().modify()` operation and does not
+restart the service. The separate messages refresh does not alter the key form
+or configuration form.
 
 Configuration edits preserve other file content and replace or append only the
 four managed directives. Duplicate managed directives are rejected without a
@@ -146,6 +183,8 @@ listed above. It does not:
 
 - detect distributions or alternate package layouts;
 - configure or prompt for Valkey authentication/passwords;
+- guarantee an atomic missing-versus-empty result for reads: the empty `GET`
+  case uses a separate `EXISTS` request, so a concurrent change can still race;
 - provide broad distribution support, backup/restore, clustering, TLS, or
   advanced Valkey configuration.
 

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "cockpit-plugin-architect",
+  "instructions": ["AGENTS.md"],
+  "references": {
+    "cockpit": {
+      "path": "..",
+      "description": "The adjacent Cockpit source repository: inspect it for authoritative in-tree APIs, conventions, examples, tests, and packaging patterns."
+    }
+  }
+}

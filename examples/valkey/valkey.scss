@@ -13,6 +13,7 @@
 @use "@patternfly/patternfly/components/List/list";
 @use "@patternfly/patternfly/components/Page/page" as pf-page;
 @use "@patternfly/patternfly/components/Tabs/tabs";
+@use "@patternfly/patternfly/components/Title/title";
 @use "@patternfly/patternfly/layouts/Gallery/gallery";
 @use "@patternfly/patternfly/utilities/Spacing/spacing.css";
 
@@ -46,7 +47,7 @@ body {
     border: var(--pf-t--global--border--width--100) solid var(--pf-t--global--border--color--default);
 }
 
-.pf-v6-c-tabs__item {
+.pf-v6-c-tabs__link {
     border: 0;
     background: transparent;
     color: inherit;
@@ -54,7 +55,7 @@ body {
     cursor: pointer;
 }
 
-.pf-v6-c-tabs__item[aria-selected="true"] {
+.pf-v6-c-tabs__link[aria-selected="true"] {
     font-weight: var(--pf-t--global--font--weight--body--bold);
 }
 

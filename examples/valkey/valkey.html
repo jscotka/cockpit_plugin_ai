@@ -10,6 +10,7 @@
 <body class="pf-v6-m-tabular-nums" hidden>
     <div class="pf-v6-c-page ct-page-fill" id="page">
     <main id="main" class="pf-v6-c-page__main" tabindex="-1">
+        <div class="pf-v6-c-page__main-container">
         <section class="pf-v6-c-page__main-section pf-m-light">
             <h1 id="page-title" class="pf-v6-c-title pf-m-3xl"></h1>
             <p id="page-description" class="pf-v6-c-content"></p>
@@ -17,11 +18,11 @@
         <p id="page-status" role="status" aria-live="polite"></p>
 
         <div class="tabs pf-v6-c-tabs" data-active-tab="tab-overview">
-            <div id="tab-list" class="tab-list pf-v6-c-tabs__list" role="tablist" aria-label="">
-                <button id="tab-overview" class="tab pf-v6-c-tabs__item" type="button" role="tab" aria-controls="panel-overview" aria-selected="true" tabindex="0"></button>
-                <button id="tab-configuration" class="tab pf-v6-c-tabs__item" type="button" role="tab" aria-controls="panel-configuration" aria-selected="false" tabindex="-1"></button>
-                <button id="tab-messages" class="tab pf-v6-c-tabs__item" type="button" role="tab" aria-controls="panel-messages" aria-selected="false" tabindex="-1"></button>
-            </div>
+            <ul id="tab-list" class="tab-list pf-v6-c-tabs__list" role="tablist" aria-label="">
+                <li class="pf-v6-c-tabs__item" role="presentation"><button id="tab-overview" class="tab pf-v6-c-tabs__link" type="button" role="tab" aria-controls="panel-overview" aria-selected="true" tabindex="0"></button></li>
+                <li class="pf-v6-c-tabs__item" role="presentation"><button id="tab-configuration" class="tab pf-v6-c-tabs__link" type="button" role="tab" aria-controls="panel-configuration" aria-selected="false" tabindex="-1"></button></li>
+                <li class="pf-v6-c-tabs__item" role="presentation"><button id="tab-messages" class="tab pf-v6-c-tabs__link" type="button" role="tab" aria-controls="panel-messages" aria-selected="false" tabindex="-1"></button></li>
+            </ul>
 
             <section id="panel-overview" class="tab-panel pf-v6-c-page__main-section" role="tabpanel" aria-labelledby="tab-overview">
                 <div class="pf-v6-l-gallery pf-m-gutter">
@@ -81,8 +82,10 @@
                 </section>
             </section>
         </div>
+        </div>
     </main>
     </div>
+    <script src="valkey-theme.js"></script>
     <script src="valkey.js"></script>
 </body>
 </html>

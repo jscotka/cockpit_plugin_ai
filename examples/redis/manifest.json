@@ -1,9 +1,0 @@
-{
-    "version": 0,
-    "tools": {
-        "redis": {
-            "label": "Redis",
-            "path": "redis.html"
-        }
-    }
-}

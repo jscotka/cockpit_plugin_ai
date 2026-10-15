@@ -4,9 +4,9 @@
     "use strict";
 
     const _ = cockpit.gettext;
-    const CONFIG_PATH = "/etc/redis/redis.conf";
-    const UNIT = "redis.service";
-    const PACKAGE = "redis";
+    const CONFIG_PATH = "/etc/valkey/valkey.conf";
+    const UNIT = "valkey.service";
+    const PACKAGE = "valkey";
     const MAX_SAMPLES = 30;
     const PK = {
         FILTER_INSTALLED: 1 << 2,
@@ -22,9 +22,8 @@
     const SD_MANAGER = "org.freedesktop.systemd1.Manager";
     const SD_UNIT = "org.freedesktop.systemd1.Unit";
     const SD_PATH = "/org/freedesktop/systemd1";
-    // This MVP intentionally targets Fedora-like systems with package "redis",
-    // unit "redis.service", executable "redis-cli", and this configuration path.
-    // Systems packaging Redis as valkey are reported as unsupported rather than guessed.
+    // This MVP intentionally targets Fedora 44 with package "valkey",
+    // unit "valkey.service", executable "valkey-cli", and this configuration path.
 
     const $ = id => document.getElementById(id);
     const controls = Array.from(document.querySelectorAll("input, select, button"));
@@ -107,18 +106,18 @@
 
     async function detectPackage() {
         setBusy(true);
-        text("installation-status", _("Checking whether the Redis package is installed…"));
+        text("installation-status", _("Checking whether the Valkey package is installed…"));
         try {
             const installed = await resolvePackage(PK.FILTER_INSTALLED | PK.FILTER_NEWEST | PK.FILTER_ARCH | PK.FILTER_NOT_SOURCE);
             state.installed = installed.length > 0;
             if (state.installed) {
-                text("installation-status", _("Redis is installed."));
+                text("installation-status", _("Valkey is installed."));
                 $("install").hidden = true;
                 setInstalledControls(true);
                 await refreshService();
                 loadConfig();
             } else {
-                text("installation-status", _("Redis is not installed. Install the redis package to manage this service."));
+                text("installation-status", _("Valkey is not installed. Install the valkey package to manage this service."));
                 $("install").hidden = false;
                 $("install").disabled = false;
                 setInstalledControls(false);
@@ -132,17 +131,17 @@
     }
 
     async function installPackage() {
-        if (!window.confirm(_("Install the redis package with administrator privileges?"))) return;
-        setBusy(true); text("installation-status", _("Installing Redis…"));
+        if (!window.confirm(_("Install the valkey package with administrator privileges?"))) return;
+        setBusy(true); text("installation-status", _("Installing Valkey…"));
         try {
             const available = await resolvePackage(PK.FILTER_NOT_INSTALLED | PK.FILTER_NEWEST | PK.FILTER_ARCH | PK.FILTER_NOT_SOURCE);
-            if (!available.length) throw new Error(_("The redis package is not available from the configured repositories."));
+            if (!available.length) throw new Error(_("The valkey package is not available from the configured repositories."));
             await packageTransaction("InstallPackages", [0, [available[0]]], { });
             state.installed = true; $("install").hidden = true;
             setInstalledControls(true);
-            text("installation-status", _("Redis was installed."));
+            text("installation-status", _("Valkey was installed."));
             await refreshService(); loadConfig();
-        } catch (ex) { text("installation-status", _("Redis installation failed: {error}").replace("{error}", errorText(ex))); }
+        } catch (ex) { text("installation-status", _("Valkey installation failed: {error}").replace("{error}", errorText(ex))); }
         finally { setBusy(false); }
     }
 
@@ -166,12 +165,12 @@
             await collectMetrics();
         } catch (ex) {
             state.serviceClient = null; state.servicePath = null; state.serviceSubscription?.remove(); state.serviceSubscription = null;
-            text("service-status", _("Redis service is unavailable: {error}").replace("{error}", errorText(ex)));
-            text("metrics-status", _("Metrics are unavailable until the Redis service is running."));
+            text("service-status", _("Valkey service is unavailable: {error}").replace("{error}", errorText(ex)));
+            text("metrics-status", _("Metrics are unavailable until the Valkey service is running."));
         }
     }
     async function serviceAction(action) {
-        const confirmation = { Stop: _("Stop the Redis service?"), Restart: _("Restart the Redis service?") }[action];
+        const confirmation = { Stop: _("Stop the Valkey service?"), Restart: _("Restart the Valkey service?") }[action];
         if (confirmation && !window.confirm(confirmation)) return;
         setBusy(true); text("service-status", _("Applying service action…"));
         try {
@@ -187,7 +186,7 @@
         const values = {};
         for (const key of ["port", "bind", "protected-mode", "maxmemory"]) {
             const lines = content.split(/\r?\n/).filter(line => new RegExp(`^\\s*${key}(?:\\s|$)`, "i").test(line));
-            if (lines.length > 1) throw new Error(_("The Redis configuration has duplicate {key} directives; it was not changed.").replace("{key}", key));
+            if (lines.length > 1) throw new Error(_("The Valkey configuration has duplicate {key} directives; it was not changed.").replace("{key}", key));
             values[key] = lines.length ? lines[0].replace(new RegExp(`^\\s*${key}\\s+`, "i"), "").trim() : (key === "port" ? "6379" : key === "bind" ? "127.0.0.1" : key === "protected-mode" ? "yes" : "0");
         }
         return values;
@@ -195,7 +194,7 @@
     function loadConfig() {
         const file = cockpit.file(CONFIG_PATH, { superuser: "require", err: "message" }); state.files.push(file);
         file.read().then(content => { state.config = parseConfig(content); $("port").value = state.config.port; $("bind").value = state.config.bind; $("protected-mode").value = state.config["protected-mode"]; $("maxmemory").value = state.config.maxmemory; })
-                .catch(ex => text("configuration-status", _("Could not read Redis configuration: {error}").replace("{error}", errorText(ex))));
+                .catch(ex => text("configuration-status", _("Could not read Valkey configuration: {error}").replace("{error}", errorText(ex))));
     }
     function validBind(value) {
         if (value === "localhost" || value === "::" || value === "0.0.0.0") return true;
@@ -221,7 +220,7 @@
         const lines = content.split(/\r?\n/); const managed = ["port", "bind", "protected-mode", "maxmemory"]; const found = new Set();
         managed.forEach(key => {
             const count = lines.filter(line => new RegExp(`^\\s*${key}(?:\\s|$)`, "i").test(line)).length;
-            if (count > 1) throw new Error(_("The Redis configuration has duplicate {key} directives; it was not changed.").replace("{key}", key));
+            if (count > 1) throw new Error(_("The Valkey configuration has duplicate {key} directives; it was not changed.").replace("{key}", key));
         });
         const output = lines.map(line => {
             const match = line.match(/^([ \t]*)(port|bind|protected-mode|maxmemory)(?=\s|$)/i);
@@ -234,11 +233,11 @@
     async function saveConfig(event) {
         event.preventDefault(); const values = formValues(); const errors = validate(values); const first = ["port", "bind", "protected-mode", "maxmemory"].find(key => errors[key]);
         if (first) { $(first).focus(); return; }
-        if (!window.confirm(_("Save these Redis settings? Redis must be restarted for the changes to take effect."))) return;
-        setBusy(true); text("configuration-status", _("Saving Redis configuration…"));
+        if (!window.confirm(_("Save these Valkey settings? Valkey must be restarted for the changes to take effect."))) return;
+        setBusy(true); text("configuration-status", _("Saving Valkey configuration…"));
         const file = state.files[state.files.length - 1] || cockpit.file(CONFIG_PATH, { superuser: "require", err: "message" });
-        try { await file.modify(content => updateConfig(content, values)); state.config = values; text("configuration-status", _("Configuration saved. Restart Redis to apply the changes.")); }
-        catch (ex) { text("configuration-status", _("Could not save Redis configuration: {error}").replace("{error}", errorText(ex))); }
+        try { await file.modify(content => updateConfig(content, values)); state.config = values; text("configuration-status", _("Configuration saved. Restart Valkey to apply the changes.")); }
+        catch (ex) { text("configuration-status", _("Could not save Valkey configuration: {error}").replace("{error}", errorText(ex))); }
         finally { setBusy(false); }
     }
 
@@ -254,7 +253,7 @@
                 if (settled) return;
                 settled = true;
                 process.close();
-                reject(new Error(_("Redis metrics request timed out.")));
+                reject(new Error(_("Valkey metrics request timed out.")));
             }, delay);
             const finish = (callback, value) => {
                 if (settled) return;
@@ -268,11 +267,11 @@
     }
     async function collectMetrics() {
         if (state.metricRequest || !state.installed || state.destroyed) return; state.metricRequest = true;
-        if (!state.samples.ops.length) text("metrics-status", _("Loading Redis metrics…"));
+        if (!state.samples.ops.length) text("metrics-status", _("Loading Valkey metrics…"));
         const config = formValues(); const host = ["0.0.0.0", "::"].includes(config.bind) ? "127.0.0.1" : config.bind;
-        try { const output = await spawnWithTimeout(["redis-cli", "--raw", "-h", host, "-p", config.port, "INFO"], { err: "message" }, 10000); if (state.destroyed) return; const values = parseInfo(output); if (Object.values(values).some(value => !Number.isFinite(value))) throw new Error(_("Redis returned incomplete metrics."));
+        try { const output = await spawnWithTimeout(["valkey-cli", "--raw", "-h", host, "-p", config.port, "INFO"], { err: "message" }, 10000); if (state.destroyed) return; const values = parseInfo(output); if (Object.values(values).some(value => !Number.isFinite(value))) throw new Error(_("Valkey returned incomplete metrics."));
             ["ops", "clients", "memory"].forEach(key => { state.samples[key].push(values[key]); if (state.samples[key].length > MAX_SAMPLES) state.samples[key].shift(); }); renderMetrics(values); text("metrics-status", _("Metrics update every 5 seconds."));
-        } catch (ex) { if (!state.destroyed) text("metrics-status", _("Could not read Redis metrics: {error}").replace("{error}", errorText(ex))); }
+        } catch (ex) { if (!state.destroyed) text("metrics-status", _("Could not read Valkey metrics: {error}").replace("{error}", errorText(ex))); }
         finally { state.metricRequest = false; }
     }
     function renderMetrics(values) {
@@ -281,7 +280,7 @@
     }
 
     function initialize() {
-        document.title = _("Redis"); text("page-title", _("Redis management")); text("installation-title", _("Installation")); text("install", _("Install Redis")); text("service-title", _("Service")); text("start", _("Start")); text("stop", _("Stop")); text("restart", _("Restart")); text("refresh", _("Refresh")); text("configuration-title", _("Basic configuration")); text("configuration-help", _("Changes are saved to /etc/redis/redis.conf. Restart Redis for them to take effect.")); text("port-label", _("Port")); text("bind-label", _("Bind address")); text("protected-mode-label", _("Protected mode")); text("protected-yes", _("Yes")); text("protected-no", _("No")); text("maxmemory-label", _("Maximum memory")); text("save", _("Save configuration")); text("metrics-title", _("Live metrics"));
+        document.title = _("Valkey"); text("page-title", _("Valkey management")); text("installation-title", _("Installation")); text("install", _("Install Valkey")); text("service-title", _("Service")); text("start", _("Start")); text("stop", _("Stop")); text("restart", _("Restart")); text("refresh", _("Refresh")); text("configuration-title", _("Basic configuration")); text("configuration-help", _("Changes are saved to /etc/valkey/valkey.conf. Restart Valkey for them to take effect.")); text("port-label", _("Port")); text("bind-label", _("Bind address")); text("protected-mode-label", _("Protected mode")); text("protected-yes", _("Yes")); text("protected-no", _("No")); text("maxmemory-label", _("Maximum memory")); text("save", _("Save configuration")); text("metrics-title", _("Live metrics"));
         $("install").addEventListener("click", installPackage); $("start").addEventListener("click", () => serviceAction("Start")); $("stop").addEventListener("click", () => serviceAction("Stop")); $("restart").addEventListener("click", () => serviceAction("Restart")); $("refresh").addEventListener("click", refreshService); $("configuration-form").addEventListener("submit", saveConfig);
         interval(collectMetrics, 5000); detectPackage();
     }

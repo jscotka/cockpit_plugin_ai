@@ -1,6 +1,7 @@
 ---
 description: Diagnoses Cockpit plugin feedback and regressions across UI design, JavaScript, backend integration, and tests
 mode: subagent
+model: openai/gpt-5.6-luna
 temperature: 0.1
 permission:
   edit: allow

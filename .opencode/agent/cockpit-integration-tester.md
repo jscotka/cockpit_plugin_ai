@@ -1,6 +1,7 @@
 ---
 description: Creates and validates assigned Cockpit integration/browser tests using the target project's existing framework
 mode: subagent
+model: openai/gpt-5.6-luna
 temperature: 0.1
 permission:
   edit: allow

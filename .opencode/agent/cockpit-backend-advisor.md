@@ -1,6 +1,7 @@
 ---
 description: Read-only advisor that compares Cockpit backend transports and records a justified choice
 mode: subagent
+model: openai/gpt-5.6-luna
 temperature: 0.1
 permission:
   edit: deny

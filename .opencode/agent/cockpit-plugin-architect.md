@@ -1,6 +1,7 @@
 ---
 description: Primary orchestrator for requirements, specialist decisions, implementation, and verification of Cockpit plugin work
 mode: primary
+model: openai/gpt-5.6-luna
 temperature: 0.1
 permission:
   edit: deny

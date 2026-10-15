@@ -1,6 +1,7 @@
 ---
 description: Owns gettext extraction and translation-catalog changes for approved Cockpit plugin work
 mode: subagent
+model: openai/gpt-5.6-luna
 temperature: 0.1
 permission:
   edit: allow

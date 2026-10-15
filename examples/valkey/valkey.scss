@@ -1,0 +1,139 @@
+$pf-v6-global--font-path: "../../static/fonts";
+
+@import "@patternfly/patternfly/patternfly-base.scss";
+@import "@patternfly/patternfly/components/Button/button.scss";
+@import "@patternfly/patternfly/components/Card/card.scss";
+@import "@patternfly/patternfly/components/DescriptionList/description-list.scss";
+@import "@patternfly/patternfly/components/Form/form.scss";
+@import "@patternfly/patternfly/components/List/list.scss";
+@import "@patternfly/patternfly/components/Page/page.scss";
+@import "@patternfly/patternfly/components/Tabs/tabs.scss";
+@import "@patternfly/patternfly/layouts/Gallery/gallery.scss";
+
+body {
+    margin: 0;
+}
+
+#main {
+    overflow: auto;
+}
+
+#page-status {
+    margin: var(--pf-t--global--spacer--md) var(--pf-t--global--spacer--lg);
+}
+
+.pf-v6-c-page__main-section {
+    padding-block: var(--pf-t--global--spacer--lg);
+}
+
+.pf-v6-c-page__main-section:first-child {
+    padding-block-end: var(--pf-t--global--spacer--md);
+}
+
+.pf-v6-c-tabs__item {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.pf-v6-c-tabs__item[aria-selected="true"] {
+    font-weight: var(--pf-t--global--font--weight--body--bold);
+}
+
+.pf-v6-l-gallery {
+    --pf-v6-l-gallery--GridTemplateColumns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+}
+
+.card {
+    min-inline-size: 0;
+}
+
+.pf-v6-c-card__header {
+    gap: var(--pf-t--global--spacer--sm);
+}
+
+.pf-v6-c-card__header p {
+    flex-basis: 100%;
+    margin-block: 0;
+}
+
+.pf-v6-c-card__body > :first-child {
+    margin-block-start: 0;
+}
+
+.pf-v6-c-card__body > :last-child {
+    margin-block-end: 0;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--pf-t--global--spacer--sm);
+}
+
+.field {
+    max-inline-size: 40rem;
+    margin-block-end: var(--pf-t--global--spacer--md);
+}
+
+.error {
+    display: block;
+    min-block-size: var(--pf-t--global--font--size--body--default);
+    color: var(--pf-t--global--text--color--status--danger--default);
+}
+
+.status-values {
+    --pf-v6-c-description-list--GridTemplateColumns: minmax(12rem, max-content) 1fr;
+}
+
+.status-values dd {
+    margin: 0;
+}
+
+.metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    gap: var(--pf-t--global--spacer--md);
+}
+
+.metric {
+    min-inline-size: 0;
+    padding: var(--pf-t--global--spacer--md);
+    border: var(--pf-t--global--border--width--100) solid var(--pf-t--global--border--color--default);
+    background: var(--pf-t--global--background--color--primary--default);
+}
+
+.metric h3 {
+    margin-block-start: 0;
+}
+
+.metric-value {
+    margin-block: var(--pf-t--global--spacer--sm);
+    font-size: var(--pf-t--global--font--size--2xl);
+    font-weight: var(--pf-t--global--font--weight--heading--bold);
+}
+
+.sparkline {
+    display: block;
+    inline-size: 100%;
+    block-size: 5rem;
+}
+
+.sparkline polyline {
+    fill: none;
+    stroke: var(--pf-t--global--icon--color--status--info--default);
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+}
+
+#messages-list {
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 767px) {
+    .status-values {
+        --pf-v6-c-description-list--GridTemplateColumns: 1fr;
+    }
+}

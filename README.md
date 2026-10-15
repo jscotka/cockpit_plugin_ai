@@ -53,3 +53,31 @@ Use cockpit-feedback-reviewer for this report: switching tabs throws
 value is not shown after navigation. Inspect the current diff, reproduce it,
 fix only the assigned files, and run focused checks.
 ```
+
+## Valkey UI build
+
+The Valkey example requires Node.js 22+ and npm 10+. On Fedora, install them
+with:
+
+```sh
+sudo dnf install -y nodejs npm
+```
+
+Use the equivalent package manager for other distributions, without assuming
+that package names or versions are identical. The build uses the existing
+Cockpit checkout dependencies from `../../../node_modules`, including esbuild,
+esbuild-sass-plugin, and PatternFly. Do not run `npm install` in the example
+directory unless it is later given its own lockfile and dependencies.
+
+From `examples/valkey`, verify the tools and build the UI:
+
+```sh
+node --version
+npm --version
+npm run build
+```
+
+Agents must complete all three checks before claiming UI build validation.
+Distinguish unavailable or too-old tools from source or build failures. The
+build generates `valkey.css`, which is required at runtime; regenerate it when
+`valkey.scss` changes and follow the repository policy for generated files.

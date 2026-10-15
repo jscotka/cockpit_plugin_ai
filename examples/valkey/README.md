@@ -1,8 +1,38 @@
 # Valkey Cockpit example
 
-This directory contains a zero-build Cockpit package for a small Valkey
+This directory contains a Cockpit package for a small Valkey
 management page. It is an MVP intended for Fedora 44 and Cockpit test images,
 not a general cross-distribution Valkey installer.
+
+## Build the UI
+
+The UI build requires Node.js 22+ and npm 10+. On Fedora, install them with:
+
+```sh
+sudo dnf install -y nodejs npm
+```
+
+Other distributions can use their equivalent package manager; package names
+and available versions may differ. From this directory, verify the tools and
+build the UI:
+
+```sh
+node --version
+npm --version
+npm run build
+```
+
+The build imports the existing Cockpit repository dependencies from
+`../../../node_modules`, including esbuild, esbuild-sass-plugin, and
+PatternFly. Do not run an unnecessary `npm install` here: this example has no
+separate dependency set. Only add an example-local install when the project is
+changed to have its own lockfile and dependencies.
+
+The build generates `valkey.css` from `valkey.scss`. `valkey.css` is required
+at runtime, so regenerate it whenever the SCSS changes and follow the
+repository policy for generated files. A missing Node.js/npm executable or an
+unsupported version is a tooling problem; errors after the build starts are
+source or build failures and should be reported separately.
 
 ## Prerequisites
 

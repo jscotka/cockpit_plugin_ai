@@ -1,6 +1,7 @@
 ---
 description: Implements bounded Cockpit plugin source and build/install/package work in the target repository
 mode: subagent
+model: openai/gpt-5.6-luna
 temperature: 0.1
 permission:
   edit: allow

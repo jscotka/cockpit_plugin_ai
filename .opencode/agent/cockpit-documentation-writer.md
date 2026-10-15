@@ -1,6 +1,7 @@
 ---
 description: Writes and updates user/developer documentation for an approved Cockpit plugin change
 mode: subagent
+model: openai/gpt-5.6-luna
 temperature: 0.1
 permission:
   edit: allow

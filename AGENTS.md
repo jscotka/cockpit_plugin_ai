@@ -10,7 +10,10 @@ This repository contains a project-local OpenCode assistant suite for planning a
 
 ## Implementation guardrails
 
-- Never modify the parent Cockpit repository (`..`) unless the user explicitly authorizes that scope. Work only in the requested target repository; keep all generated and temporary files local to it.
+- Never modify the parent Cockpit repository (`..`) unless the user explicitly authorizes it. Work only in the requested target repository; keep all generated and temporary files local to it.
+- The Valkey UI build requires Node.js 22 or newer and npm 10 or newer. Before claiming UI build validation, verify `node --version` and `npm --version`, then run `npm run build` from `examples/valkey`. Report missing tools separately from failures in the source or build.
+- The Valkey example reuses dependencies from the adjacent Cockpit checkout at `../../../node_modules`, including esbuild, esbuild-sass-plugin, and PatternFly. Do not run an example-local `npm install` unless the example is changed to define its own lockfile and dependencies.
+- `examples/valkey/valkey.css` is a generated, required runtime artifact. Regenerate it with the Valkey build when `valkey.scss` changes, and follow this repository's policy for generated files rather than editing the CSS by hand.
 - Do not construct shell commands by interpolating untrusted values. Prefer APIs and argument arrays (for example, `cockpit.spawn([...])`); validate and quote any unavoidable shell input, and explain the remaining risk.
 - Follow Cockpit-native and PatternFly conventions, including keyboard operation, accessible names and focus handling, and clear loading, empty, success, and error states.
 - Keep user-visible strings translatable. Follow Cockpit gettext conventions and validate catalogs and extraction rather than hand-editing generated artifacts.

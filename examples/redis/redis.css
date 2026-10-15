@@ -1,0 +1,16 @@
+:root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+body { margin: 0; padding: 1rem; background: Canvas; color: CanvasText; }
+main { max-width: 70rem; margin: auto; }
+.card { border: 1px solid color-mix(in srgb, CanvasText 25%, transparent); border-radius: .35rem; padding: 1rem; margin: 1rem 0; }
+.field { display: grid; gap: .25rem; max-width: 28rem; margin: .75rem 0; }
+input, select, button { font: inherit; padding: .4rem .55rem; }
+button { cursor: pointer; margin: .25rem .5rem .25rem 0; }
+button:disabled { cursor: not-allowed; opacity: .55; }
+.actions { display: flex; flex-wrap: wrap; }
+.error { min-height: 1.2em; color: #b00020; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1rem; }
+.metric { border: 1px solid color-mix(in srgb, CanvasText 20%, transparent); padding: .75rem; }
+.metric h3 { margin-top: 0; }
+.metric-value { font-size: 1.4rem; font-variant-numeric: tabular-nums; }
+.sparkline { width: 100%; height: 5rem; display: block; }
+.sparkline polyline { fill: none; stroke: currentColor; stroke-width: 2; vector-effect: non-scaling-stroke; }

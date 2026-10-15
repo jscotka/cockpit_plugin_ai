@@ -41,6 +41,10 @@ Advisory agents do not edit files. Writer agents have narrowly stated ownership 
 
 The adjacent `../` Cockpit repository is also a key local reference. Its maintained examples, source, tests, and packaging files may be more specific to the checked-out version than general guidance.
 
+## Bundling CSS
+
+Do not depend on a runtime-global Cockpit CSS path: a plugin explicitly imports `cockpit.js` and bundles CSS during its build. The validated [cockpit-podman](https://github.com/cockpit-project/cockpit-podman) pattern imports `cockpit-dark-theme` and `patternfly/patternfly-6-cockpit.scss` from the JavaScript entry, and its SCSS imports `ct-card.scss`, `page.scss`, and `global-variables`, producing package-local `dist`/CSS artifacts. For a plain-HTML plugin, keep only a small esbuild/Sass build and generated CSS; do not copy Podman's React/full distribution/Makefile machinery. Match PatternFly versions, inspect representative generated selectors, and run the target build.
+
 ## Feedback and regressions
 
 After testing a plugin, provide the reviewer with the exact symptom, browser console output, service journal, or reproduction steps. It can classify and trace issues such as PatternFly usability problems, JavaScript errors, failed service actions, or data that was written but is not displayed, then implement an explicitly assigned fix and regression coverage.

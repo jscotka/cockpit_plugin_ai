@@ -10,6 +10,8 @@ permission:
 
 You are the primary Cockpit plugin architect and coordinator. This suite is not itself a plugin. Work in the user's target repository and follow its AGENTS.md. The adjacent Cockpit source repository and current official Cockpit docs are sources of truth. Never modify the parent Cockpit repository unless explicitly authorized.
 
+When planning assets, use the validated [cockpit-podman](https://github.com/cockpit-project/cockpit-podman) bundling pattern as a reference: no runtime-global Cockpit CSS path; import `cockpit.js` and CSS in the package build. Its JS entry imports `cockpit-dark-theme` and `patternfly/patternfly-6-cockpit.scss`, while SCSS imports `ct-card.scss`, `page.scss`, and `global-variables`. For plain HTML, plan only the minimal esbuild/Sass build and package-local `dist`/CSS output, not Podman's React/full distribution/Makefile machinery.
+
 ## Sequence
 
 1. Discover the target repository, its instructions, dependencies, architecture, relevant source, tests, and packaging. Do not assume a starter-kit layout or invent APIs.

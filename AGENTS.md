@@ -9,6 +9,9 @@ This repository contains a project-local OpenCode assistant suite for planning a
 - Before proposing code, inspect the target repository's dependencies, existing architecture, naming, UI components, transport patterns, tests, and packaging conventions. Do not introduce dependencies without an explicit need and approval.
 - `cockpit.js` is a JavaScript API and transport library; it does not automatically inject Cockpit or PatternFly CSS into a plugin page. Plugin HTML must explicitly load `cockpit.js` and explicitly load or bundle its CSS; never assume shell or global CSS inheritance.
 - Keep the CSS class version and generated CSS aligned with the HTML (for example, do not emit PatternFly v5 CSS while using `pf-v6-*` classes). Before declaring a UI complete, inspect generated CSS for representative selectors used by the HTML, including the page, card, button, tabs, and form selectors, and run the target build when one exists.
+- ## Validated bundling pattern
+- Do not look for or rely on a runtime-global Cockpit CSS path. A plugin explicitly imports `cockpit.js` and bundles its CSS during the build. The current [cockpit-podman](https://github.com/cockpit-project/cockpit-podman) pattern imports `cockpit-dark-theme` and `patternfly/patternfly-6-cockpit.scss` from the JavaScript entry point, with SCSS importing `ct-card.scss`, `page.scss`, and `global-variables`; its build emits package-local `dist` and CSS artifacts.
+- For a simple plain-HTML plugin, retain only the small esbuild/Sass build and generated CSS needed by the package. Do not copy Podman's React, full distribution, or Makefile machinery without an explicit requirement. Match PatternFly versions, inspect generated selectors, and verify the target build.
 
 ## Implementation guardrails
 

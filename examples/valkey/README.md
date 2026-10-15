@@ -22,11 +22,17 @@ npm --version
 npm run build
 ```
 
-The build imports the existing Cockpit repository dependencies from
-`../../../node_modules`, including esbuild, esbuild-sass-plugin, and
-PatternFly. Do not run an unnecessary `npm install` here: this example has no
-separate dependency set. Only add an example-local install when the project is
-changed to have its own lockfile and dependencies.
+The example has a small local dependency set because the adjacent Cockpit
+checkout may have stale dependencies. Install it from this directory with:
+
+```sh
+npm install
+```
+
+For a clean checkout with `package-lock.json`, prefer `npm ci`. The build uses
+the local pinned esbuild, esbuild-sass-plugin, Sass, and PatternFly packages;
+it also loads Cockpit's shared SCSS sources from `../../../pkg/lib`. Do not run
+an example-local install in the parent Cockpit repository.
 
 The build generates `valkey.css` from `valkey.scss`. `valkey.css` is required
 at runtime, so regenerate it whenever the SCSS changes and follow the

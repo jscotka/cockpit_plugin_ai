@@ -1,6 +1,12 @@
 {
     "private": true,
     "type": "module",
+    "dependencies": {
+        "@patternfly/patternfly": "6.6.1",
+        "esbuild": "0.28.2",
+        "esbuild-sass-plugin": "3.7.0",
+        "sass": "1.77.1"
+    },
     "scripts": {
         "build": "node build.mjs"
     }

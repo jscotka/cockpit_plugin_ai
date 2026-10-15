@@ -1,14 +1,20 @@
-$pf-v6-global--font-path: "../../static/fonts";
+// Match Cockpit's current PatternFly v6 page setup while keeping this example
+// a small, plain-HTML package.  These are the same local SCSS entry points
+// used by Cockpit pages; no shell-global stylesheet is required at runtime.
+@use "global-variables";
+@use "page";
+@use "ct-card";
 
-@import "@patternfly/patternfly/patternfly-base.scss";
-@import "@patternfly/patternfly/components/Button/button.scss";
-@import "@patternfly/patternfly/components/Card/card.scss";
-@import "@patternfly/patternfly/components/DescriptionList/description-list.scss";
-@import "@patternfly/patternfly/components/Form/form.scss";
-@import "@patternfly/patternfly/components/List/list.scss";
-@import "@patternfly/patternfly/components/Page/page.scss";
-@import "@patternfly/patternfly/components/Tabs/tabs.scss";
-@import "@patternfly/patternfly/layouts/Gallery/gallery.scss";
+@use "@patternfly/patternfly/components/Button/button";
+@use "@patternfly/patternfly/components/Card/card";
+@use "@patternfly/patternfly/components/DescriptionList/description-list";
+@use "@patternfly/patternfly/components/Form/form";
+@use "@patternfly/patternfly/components/FormControl/form-control";
+@use "@patternfly/patternfly/components/List/list";
+@use "@patternfly/patternfly/components/Page/page" as pf-page;
+@use "@patternfly/patternfly/components/Tabs/tabs";
+@use "@patternfly/patternfly/layouts/Gallery/gallery";
+@use "@patternfly/patternfly/utilities/Spacing/spacing.css";
 
 body {
     margin: 0;
@@ -28,6 +34,16 @@ body {
 
 .pf-v6-c-page__main-section:first-child {
     padding-block-end: var(--pf-t--global--spacer--md);
+}
+
+.pf-v6-c-page {
+    color: var(--pf-t--global--text--color--regular);
+    background: var(--pf-t--global--background--color--primary--default);
+}
+
+.card.pf-v6-c-card {
+    min-inline-size: 0;
+    border: var(--pf-t--global--border--width--100) solid var(--pf-t--global--border--color--default);
 }
 
 .pf-v6-c-tabs__item {

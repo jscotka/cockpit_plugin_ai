@@ -13,101 +13,67 @@
         <p id="page-description"></p>
         <p id="page-status" role="status" aria-live="polite"></p>
 
-        <section class="card" aria-labelledby="installation-title">
-            <h2 id="installation-title"></h2>
-            <p id="installation-status" role="status"></p>
-            <button id="install" type="button"></button>
-        </section>
-
-        <section class="card" aria-labelledby="service-title">
-            <h2 id="service-title"></h2>
-            <p id="service-status" role="status" aria-live="polite"></p>
-            <div class="actions">
-                <button id="start" type="button"></button>
-                <button id="stop" type="button"></button>
-                <button id="restart" type="button"></button>
+        <div class="tabs" data-active-tab="tab-overview">
+            <div id="tab-list" class="tab-list" role="tablist" aria-label="">
+                <button id="tab-overview" class="tab" type="button" role="tab" aria-controls="panel-overview" aria-selected="true" tabindex="0"></button>
+                <button id="tab-configuration" class="tab" type="button" role="tab" aria-controls="panel-configuration" aria-selected="false" tabindex="-1"></button>
+                <button id="tab-messages" class="tab" type="button" role="tab" aria-controls="panel-messages" aria-selected="false" tabindex="-1"></button>
             </div>
-        </section>
 
-        <section class="card" aria-labelledby="configuration-title">
-            <h2 id="configuration-title"></h2>
-            <p id="configuration-help"></p>
-            <form id="configuration-form" novalidate>
-                <div class="field">
-                    <label for="port" id="port-label"></label>
-                    <input id="port" name="port" inputmode="numeric" required aria-describedby="port-error">
-                    <small id="port-error" class="error" role="alert"></small>
-                </div>
-                <div class="field">
-                    <label for="bind" id="bind-label"></label>
-                    <input id="bind" name="bind" required autocomplete="off" aria-describedby="bind-error">
-                    <small id="bind-error" class="error" role="alert"></small>
-                </div>
-                <div class="field">
-                    <label for="protected-mode" id="protected-mode-label"></label>
-                    <select id="protected-mode" name="protected-mode" aria-describedby="protected-mode-error">
-                        <option value="yes" id="protected-yes"></option>
-                        <option value="no" id="protected-no"></option>
-                    </select>
-                    <small id="protected-mode-error" class="error" role="alert"></small>
-                </div>
-                <div class="field">
-                    <label for="maxmemory" id="maxmemory-label"></label>
-                    <input id="maxmemory" name="maxmemory" required autocomplete="off" aria-describedby="maxmemory-error">
-                    <small id="maxmemory-error" class="error" role="alert"></small>
-                </div>
-                <div class="actions">
-                    <button id="save" type="submit"></button>
-                    <button id="refresh" type="button"></button>
-                </div>
-                <p id="configuration-status" role="status" aria-live="polite"></p>
-            </form>
-        </section>
+            <section id="panel-overview" class="tab-panel" role="tabpanel" aria-labelledby="tab-overview">
+                <section class="card" aria-labelledby="installation-title">
+                    <h2 id="installation-title"></h2>
+                    <p id="installation-status" role="status"></p>
+                    <button id="install" type="button"></button>
+                </section>
+                <section class="card" aria-labelledby="service-title">
+                    <h2 id="service-title"></h2>
+                    <p id="service-status" role="status" aria-live="polite"></p>
+                    <div class="actions"><button id="start" type="button"></button><button id="stop" type="button"></button><button id="restart" type="button"></button></div>
+                </section>
+                <section class="card" aria-labelledby="internal-status-title">
+                    <h2 id="internal-status-title"></h2>
+                    <p id="internal-status" role="status" aria-live="polite"></p>
+                    <dl id="status-values" class="status-values"></dl>
+                </section>
+                <section class="card" aria-labelledby="metrics-title">
+                    <h2 id="metrics-title"></h2>
+                    <p id="metrics-status" role="status" aria-live="polite"></p>
+                    <div id="metrics" class="metrics"></div>
+                </section>
+                <button id="refresh" type="button"></button>
+            </section>
 
-        <section class="card" aria-labelledby="internal-status-title">
-            <h2 id="internal-status-title"></h2>
-            <p id="internal-status" role="status" aria-live="polite"></p>
-            <dl id="status-values" class="status-values"></dl>
-        </section>
+            <section id="panel-configuration" class="tab-panel" role="tabpanel" aria-labelledby="tab-configuration" hidden>
+                <section class="card" aria-labelledby="configuration-title">
+                    <h2 id="configuration-title"></h2><p id="configuration-help"></p>
+                    <form id="configuration-form" novalidate>
+                        <div class="field"><label for="port" id="port-label"></label><input id="port" name="port" inputmode="numeric" required aria-describedby="port-error"><small id="port-error" class="error" role="alert"></small></div>
+                        <div class="field"><label for="bind" id="bind-label"></label><input id="bind" name="bind" required autocomplete="off" aria-describedby="bind-error"><small id="bind-error" class="error" role="alert"></small></div>
+                        <div class="field"><label for="protected-mode" id="protected-mode-label"></label><select id="protected-mode" name="protected-mode" aria-describedby="protected-mode-error"><option value="yes" id="protected-yes"></option><option value="no" id="protected-no"></option></select><small id="protected-mode-error" class="error" role="alert"></small></div>
+                        <div class="field"><label for="maxmemory" id="maxmemory-label"></label><input id="maxmemory" name="maxmemory" required autocomplete="off" aria-describedby="maxmemory-error"><small id="maxmemory-error" class="error" role="alert"></small></div>
+                        <div class="actions"><button id="save" type="submit"></button><button id="refresh-configuration" type="button"></button></div>
+                        <p id="configuration-status" role="status" aria-live="polite"></p>
+                    </form>
+                </section>
+            </section>
 
-        <section class="card" aria-labelledby="key-title">
-            <h2 id="key-title"></h2>
-            <p id="key-help"></p>
-            <div class="field">
-                <label for="key" id="key-label"></label>
-                <input id="key" autocomplete="off" aria-describedby="key-error">
-                <small id="key-error" class="error" role="alert"></small>
-            </div>
-            <div class="field">
-                <label for="key-value" id="key-value-label"></label>
-                <textarea id="key-value" rows="6" aria-describedby="key-value-error"></textarea>
-                <small id="key-value-error" class="error" role="alert"></small>
-            </div>
-            <div class="actions">
-                <button id="read-key" type="button"></button>
-                <button id="write-key" type="button"></button>
-                <button id="delete-key" type="button"></button>
-            </div>
-            <p id="key-status" role="status" aria-live="polite"></p>
-        </section>
-
-        <section class="card" aria-labelledby="metrics-title">
-            <h2 id="metrics-title"></h2>
-            <p id="metrics-status" role="status" aria-live="polite"></p>
-            <div id="metrics" class="metrics"></div>
-        </section>
-
-        <section class="card" aria-labelledby="messages-title">
-            <h2 id="messages-title"></h2>
-            <p id="messages-help"></p>
-            <div class="field">
-                <label for="messages-filter" id="messages-filter-label"></label>
-                <input id="messages-filter" autocomplete="off">
-            </div>
-            <button id="refresh-messages" type="button"></button>
-            <p id="messages-status" role="status" aria-live="polite"></p>
-            <ul id="messages-list"></ul>
-        </section>
+            <section id="panel-messages" class="tab-panel" role="tabpanel" aria-labelledby="tab-messages" hidden>
+                <section class="card" aria-labelledby="key-title">
+                    <h2 id="key-title"></h2><p id="key-help"></p>
+                    <div class="field"><label for="key" id="key-label"></label><input id="key" autocomplete="off" aria-describedby="key-error"><small id="key-error" class="error" role="alert"></small></div>
+                    <div class="field"><label for="key-value" id="key-value-label"></label><textarea id="key-value" rows="6" aria-describedby="key-value-error"></textarea><small id="key-value-error" class="error" role="alert"></small></div>
+                    <div class="actions"><button id="read-key" type="button"></button><button id="write-key" type="button"></button><button id="delete-key" type="button"></button></div>
+                    <p id="key-status" role="status" aria-live="polite"></p>
+                </section>
+                <section class="card" aria-labelledby="messages-title">
+                    <h2 id="messages-title"></h2><p id="messages-help"></p>
+                    <form id="message-form" novalidate><div class="field"><label for="message" id="message-label"></label><textarea id="message" name="message" rows="3" maxlength="1048576" aria-describedby="message-error"></textarea><small id="message-error" class="error" role="alert"></small></div><button id="store-message" type="submit"></button><p id="message-status" role="status" aria-live="polite"></p></form>
+                    <div class="field"><label for="messages-filter" id="messages-filter-label"></label><input id="messages-filter" autocomplete="off"></div>
+                    <button id="refresh-messages" type="button"></button><p id="messages-status" role="status" aria-live="polite"></p><ul id="messages-list"></ul>
+                </section>
+            </section>
+        </div>
     </main>
     <script src="valkey.js"></script>
 </body>

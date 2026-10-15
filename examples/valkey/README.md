@@ -111,21 +111,35 @@ Cockpit package is installed: the host must provide the `valkey` package,
 The page checks PackageKit for the exact package name `valkey`. If it is not
 installed, choose **Install Valkey** and confirm the administrator operation.
 
+The page is organized into three keyboard-accessible tabs:
+
+1. **Overview** contains installation, service status and actions, internal
+   Valkey status, live metric graphs, and **Refresh all**.
+2. **Configuration** contains the values read from
+   `/etc/valkey/valkey.conf`, plus configuration refresh and save.
+3. **Message debugging** contains database 0 key operations and the `messages`
+   list, including its filter, refresh, and Store message form.
+
+Use Tab to focus the tab list, Arrow Left/Right or Home/End to move between
+tabs, and Enter or Space to activate one. Changing tabs does not contact the
+backend, and form contents (including unsaved configuration) remain in place.
+
 ## What it does
 
 After installation, the page can:
 
 - explain that Valkey is an in-memory key-value database and that this page
   manages the Fedora service, its configuration, database 0 keys, and the
-  local messages list;
+  local messages list across the three tabs;
 - display and refresh the state of `valkey.service`;
 - start, stop, and restart the service;
 - edit these directives in `/etc/valkey/valkey.conf`: `port`, `bind`,
   `protected-mode`, and `maxmemory`;
 - query `valkey-cli INFO` for instantaneous operations per second, connected
   clients, used memory, uptime, the database 0 key count, and (when reported)
-  peak memory and memory fragmentation. This internal status is separate from
-  the systemd service status.
+  peak memory and memory fragmentation. If `INFO` omits the database 0 keyspace
+  line because it is empty, the internal status reports 0 keys. This internal
+  status is separate from the systemd service status.
 
 ### Database 0 key operations
 
@@ -141,12 +155,20 @@ not require administrator authorization.
 ### Messages
 
 The page treats the local Valkey database 0 list key named `messages` as its
-message source. It runs
+message source. Enter a message in the **Message** field and choose **Store
+message** to prepend it with
+`valkey-cli --raw -n 0 LPUSH messages <message>`. The input must be non-empty,
+contain no NUL character, and be no larger than 1 MiB. The page then refreshes
+the last 10 entries and the internal key count. It runs
 `valkey-cli --raw -n 0 LRANGE messages -10 -1` and displays those last 10 list
 entries. A case-insensitive substring filter is applied in the browser to the
 already-loaded entries; it does not run another command. The section has its
 own refresh button, and the page refresh also refreshes it. It does not use
 pub/sub or enumerate keys.
+
+The `messages` key must already be a Valkey list. If it exists as another type,
+the page reports the problem and does not overwrite it; change or delete that
+key using an appropriate Valkey operation before storing messages.
 
 ### Refresh and states
 
@@ -154,7 +176,8 @@ pub/sub or enumerate keys.
 metrics, and messages. Loading, empty, and error states are shown for the
 corresponding sections. Configuration values are loaded from the current
 `/etc/valkey/valkey.conf`; if any configuration field has been edited locally,
-refresh reports a warning and leaves those edits intact. Saving uses the
+**Refresh configuration** reports a warning instead of replacing local edits.
+Saving uses the
 existing concurrency-safe `cockpit.file().modify()` operation and does not
 restart the service. The separate messages refresh does not alter the key form
 or configuration form.

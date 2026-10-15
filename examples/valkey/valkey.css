@@ -1,6 +1,11 @@
 :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
 body { margin: 0; padding: 1rem; background: Canvas; color: CanvasText; }
 main { max-width: 70rem; margin: auto; }
+.tab-list { display: flex; flex-wrap: wrap; gap: .25rem; border-bottom: 1px solid color-mix(in srgb, CanvasText 25%, transparent); margin: 1rem 0; }
+.tab { border: 0; border-bottom: .2rem solid transparent; border-radius: .2rem .2rem 0 0; margin: 0; background: transparent; }
+.tab[aria-selected="true"] { border-bottom-color: currentColor; font-weight: 600; }
+.tab:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 3px solid Highlight; outline-offset: 2px; }
+.tab-panel { min-height: 10rem; }
 .card { border: 1px solid color-mix(in srgb, CanvasText 25%, transparent); border-radius: .35rem; padding: 1rem; margin: 1rem 0; }
 .field { display: grid; gap: .25rem; max-width: 32rem; margin: .75rem 0; }
 input, textarea, select, button { font: inherit; padding: .4rem .55rem; }

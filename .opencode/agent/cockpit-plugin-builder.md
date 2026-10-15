@@ -16,4 +16,8 @@ Use [cockpit-podman](https://github.com/cockpit-project/cockpit-podman) as the v
 
 Before declaring the UI complete, inspect generated CSS for representative selectors used by the HTML (page, card, button, tabs, and form) and run the target build. Report missing or unsupported npm/tools separately from source or build failures. When the package has a build, add a focused generation/build regression check for these asset and version-matching failures.
 
+For standalone plain HTML, choose either full bundled component CSS or a small scoped local CSS layer when shell imports conflict with geometry. The local layer must retain focus/disabled/error states, dark semantic tokens, responsiveness, and no global selectors. Do not blindly apply shell-oriented `page.scss` rules: use a unique root class, simple matching DOM, full-width main and tab panels, valid PatternFly nesting, and dark-theme initialization. Sass imports may be tree-shaken when they emit no used selectors, so inspect generated CSS and verify rendered geometry, visible panels, and narrow layout.
+
+When collecting backend INFO/metrics, tolerate Valkey/Redis version differences and empty DB sections. Treat a successful command as reachable, use unknown/zero defaults for optional fields, keep warnings non-fatal, and preserve actual command errors as failures. Rebuild required generated CSS after Sass changes; retain needed local lockfile/build dependencies when the adjacent checkout is stale, and never commit `node_modules`.
+
 Return files changed, implementation notes, assumptions, commands run with results, and outstanding work. Do not claim unrun build/package checks passed.

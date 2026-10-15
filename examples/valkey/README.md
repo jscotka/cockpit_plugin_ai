@@ -30,9 +30,10 @@ npm install
 ```
 
 For a clean checkout with `package-lock.json`, prefer `npm ci`. The build uses
-the local pinned esbuild, esbuild-sass-plugin, Sass, and PatternFly packages;
-it also loads Cockpit's shared SCSS sources from `../../../pkg/lib`. Do not run
-an example-local install in the parent Cockpit repository.
+the local pinned esbuild, esbuild-sass-plugin, and Sass packages. The stylesheet
+is standalone: it uses PatternFly-looking class names but does not load Cockpit
+shell layout rules, shared `page.scss`, `ct-card`, or PatternFly component Sass.
+Do not run an example-local install in the parent Cockpit repository.
 
 The build generates `valkey.css` from `valkey.scss`. `valkey.css` is required
 at runtime, so regenerate it whenever the SCSS changes and follow the

@@ -43,7 +43,11 @@ The adjacent `../` Cockpit repository is also a key local reference. Its maintai
 
 ## Bundling CSS
 
-Do not depend on a runtime-global Cockpit CSS path: a plugin explicitly imports `cockpit.js` and bundles CSS during its build. The validated [cockpit-podman](https://github.com/cockpit-project/cockpit-podman) pattern imports `cockpit-dark-theme` and `patternfly/patternfly-6-cockpit.scss` from the JavaScript entry, and its SCSS imports `ct-card.scss`, `page.scss`, and `global-variables`, producing package-local `dist`/CSS artifacts. For a plain-HTML plugin, keep only a small esbuild/Sass build and generated CSS; do not copy Podman's React/full distribution/Makefile machinery. Match PatternFly versions, inspect representative generated selectors, and run the target build.
+Do not depend on a runtime-global Cockpit CSS path: `cockpit.js` provides APIs and transport, not CSS. Explicitly ship CSS and deliberately choose either full bundled Cockpit/PatternFly component CSS or a small scoped local CSS layer using matching PatternFly class names. The local option is appropriate when shell page imports conflict with standalone geometry, but must preserve focus, disabled, error, dark-token, and responsive states and must not use global selectors.
+
+The validated [cockpit-podman](https://github.com/cockpit-project/cockpit-podman) pattern imports `cockpit-dark-theme` and `patternfly/patternfly-6-cockpit.scss` from the JavaScript entry, and its SCSS imports `ct-card.scss`, `page.scss`, and `global-variables`, producing package-local `dist`/CSS artifacts. For plain HTML, keep only a small esbuild/Sass build and generated CSS; do not copy Podman's React/full distribution/Makefile machinery. Sass imports must emit actual selectors because unused namespaces may be tree-shaken. Match PatternFly versions, inspect representative generated selectors, and run the target build.
+
+Cockpit `page.scss` is shell-oriented. Standalone pages need a unique root scope, simple DOM, full-width main and panels, and no shell containers/sidebar grids unless the markup matches. PatternFly classes also require the expected DOM structure for pages, tabs, forms, and titles; verify visible panels, rendered geometry, theme initialization, and narrow layout.
 
 ## Feedback and regressions
 
@@ -84,4 +88,25 @@ npm run build
 Agents must complete all three checks before claiming UI build validation.
 Distinguish unavailable or too-old tools from source or build failures. The
 build generates `valkey.css`, which is required at runtime; regenerate it when
-`valkey.scss` changes and follow the repository policy for generated files.
+Sass changes and follow the repository policy for generated files. Keep a local
+lockfile/build dependency declaration when the adjacent checkout is stale, but
+never commit `node_modules`.
+
+## Improving the agent suite
+
+After a completed task exposes a reusable gap—such as a CSS version mismatch,
+shell layout rules shrinking a standalone page, missing dark-theme
+initialization, a tab DOM mismatch, or version-sensitive backend metrics—run:
+
+```text
+/improve-cockpit-agents Summarize the completed regression, final diff, and validation evidence; update only the agent and skill guidance with reusable lessons.
+```
+
+`cockpit-agent-maintainer` may update only this suite's guidance files. It must
+not change plugin source, generated output, dependencies, or the parent
+Cockpit checkout, and it must reject one-off lessons that do not generalize.
+
+Backend INFO/metrics should tolerate Valkey/Redis version differences and empty
+DB sections: a successful command still means reachable, optional fields may
+use unknown/zero defaults, warnings are non-fatal, and actual command errors
+remain failures.

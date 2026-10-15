@@ -1,156 +1,337 @@
-// Match Cockpit's current PatternFly v6 page setup while keeping this example
-// a small, plain-HTML package.  These are the same local SCSS entry points
-// used by Cockpit pages; no shell-global stylesheet is required at runtime.
-@use "global-variables";
-@use "page";
-@use "ct-card";
+// Standalone styling: the markup keeps PatternFly-looking class names, but no
+// Cockpit shell layout or PatternFly component stylesheet is required.
 
-@use "@patternfly/patternfly/components/Button/button";
-@use "@patternfly/patternfly/components/Card/card";
-@use "@patternfly/patternfly/components/DescriptionList/description-list";
-@use "@patternfly/patternfly/components/Form/form";
-@use "@patternfly/patternfly/components/FormControl/form-control";
-@use "@patternfly/patternfly/components/List/list";
-@use "@patternfly/patternfly/components/Page/page" as pf-page;
-@use "@patternfly/patternfly/components/Tabs/tabs";
-@use "@patternfly/patternfly/components/Title/title";
-@use "@patternfly/patternfly/layouts/Gallery/gallery";
-@use "@patternfly/patternfly/utilities/Spacing/spacing.css";
-
+html,
 body {
+    inline-size: 100%;
+    min-block-size: 100%;
     margin: 0;
 }
 
-#main {
-    overflow: auto;
+body {
+    font-family: system-ui, sans-serif;
+    line-height: 1.5;
 }
 
-#page-status {
-    margin: var(--pf-t--global--spacer--md) var(--pf-t--global--spacer--lg);
+.valkey-page {
+    --valkey-bg: #fff;
+    --valkey-surface: #f5f5f5;
+    --valkey-surface-raised: #fff;
+    --valkey-text: #151515;
+    --valkey-muted: #4f5255;
+    --valkey-border: #b8bbbe;
+    --valkey-brand: #0066cc;
+    --valkey-danger: #c9190b;
+    --valkey-focus: #06c;
+    box-sizing: border-box;
+    inline-size: 100%;
+    min-block-size: 100vh;
+    color: var(--valkey-text);
+    background: var(--valkey-bg);
 }
 
-.pf-v6-c-page__main-section {
-    padding-block: var(--pf-t--global--spacer--lg);
+.pf-v6-theme-dark .valkey-page {
+    --valkey-bg: #151515;
+    --valkey-surface: #212121;
+    --valkey-surface-raised: #2b2b2b;
+    --valkey-text: #f0f0f0;
+    --valkey-muted: #c7c7c7;
+    --valkey-border: #5f5f5f;
+    --valkey-brand: #73bcf7;
+    --valkey-danger: #f56e6e;
+    --valkey-focus: #73bcf7;
 }
 
-.pf-v6-c-page__main-section:first-child {
-    padding-block-end: var(--pf-t--global--spacer--md);
+.valkey-page,
+.valkey-page *,
+.valkey-page *::before,
+.valkey-page *::after {
+    box-sizing: border-box;
 }
 
-.pf-v6-c-page {
-    color: var(--pf-t--global--text--color--regular);
-    background: var(--pf-t--global--background--color--primary--default);
-}
-
-.card.pf-v6-c-card {
+.valkey-page > .pf-v6-c-page__main,
+.valkey-page .tabs,
+.valkey-page .tab-panel,
+.valkey-page .pf-v6-c-page__main-section,
+.valkey-page .pf-v6-l-gallery {
+    inline-size: 100%;
     min-inline-size: 0;
-    border: var(--pf-t--global--border--width--100) solid var(--pf-t--global--border--color--default);
 }
 
-.pf-v6-c-tabs__link {
+.valkey-page > .pf-v6-c-page__main {
+    display: block;
+    max-inline-size: none;
+    margin: 0;
+    overflow: visible;
+}
+
+.valkey-page .pf-v6-c-page__main-section {
+    padding: 1.5rem;
+}
+
+.valkey-page .pf-v6-c-page__main-section:first-child {
+    padding-block-end: 1rem;
+}
+
+.valkey-page h1,
+.valkey-page h2,
+.valkey-page h3,
+.valkey-page p {
+    margin-block-start: 0;
+}
+
+.valkey-page h1,
+.valkey-page h2,
+.valkey-page h3 {
+    line-height: 1.25;
+}
+
+.valkey-page #page-title {
+    margin-block-end: .35rem;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+.valkey-page #page-description,
+.valkey-page .pf-v6-c-card__header p {
+    color: var(--valkey-muted);
+}
+
+.valkey-page #page-status {
+    margin: 1rem 1.5rem;
+}
+
+.valkey-page .tabs {
+    display: block;
+}
+
+.valkey-page .tab-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .25rem;
+    inline-size: 100%;
+    margin: 0;
+    padding: 0 1.5rem;
+    border-block-end: 1px solid var(--valkey-border);
+    list-style: none;
+}
+
+.valkey-page .pf-v6-c-tabs__item {
+    display: block;
+}
+
+.valkey-page .pf-v6-c-tabs__link {
+    display: block;
+    padding: .7rem 1rem;
     border: 0;
+    border-block-end: 3px solid transparent;
+    color: var(--valkey-muted);
     background: transparent;
-    color: inherit;
     font: inherit;
     cursor: pointer;
 }
 
-.pf-v6-c-tabs__link[aria-selected="true"] {
-    font-weight: var(--pf-t--global--font--weight--body--bold);
+.valkey-page .pf-v6-c-tabs__link:hover,
+.valkey-page .pf-v6-c-tabs__link[aria-selected="true"] {
+    color: var(--valkey-text);
 }
 
-.pf-v6-l-gallery {
-    --pf-v6-l-gallery--GridTemplateColumns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+.valkey-page .pf-v6-c-tabs__link[aria-selected="true"] {
+    border-block-end-color: var(--valkey-brand);
+    font-weight: 700;
 }
 
-.card {
+.valkey-page .pf-v6-c-tabs__link:focus-visible,
+.valkey-page button:focus-visible,
+.valkey-page input:focus-visible,
+.valkey-page select:focus-visible,
+.valkey-page textarea:focus-visible {
+    outline: 3px solid var(--valkey-focus);
+    outline-offset: 2px;
+}
+
+.valkey-page .tab-panel {
+    padding-block: 1.5rem;
+}
+
+.valkey-page .pf-v6-l-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+    gap: 1rem;
+}
+
+.valkey-page .card.pf-v6-c-card {
     min-inline-size: 0;
+    border: 1px solid var(--valkey-border);
+    border-radius: .25rem;
+    background: var(--valkey-surface-raised);
 }
 
-.pf-v6-c-card__header {
-    gap: var(--pf-t--global--spacer--sm);
+.valkey-page .pf-v6-c-card__header {
+    padding: 1rem 1rem .5rem;
 }
 
-.pf-v6-c-card__header p {
-    flex-basis: 100%;
-    margin-block: 0;
+.valkey-page .pf-v6-c-card__header p {
+    margin-block: .5rem 0;
 }
 
-.pf-v6-c-card__body > :first-child {
+.valkey-page .pf-v6-c-card__body {
+    padding: 1rem;
+}
+
+.valkey-page .pf-v6-c-card__body > :first-child {
     margin-block-start: 0;
 }
 
-.pf-v6-c-card__body > :last-child {
+.valkey-page .pf-v6-c-card__body > :last-child {
     margin-block-end: 0;
 }
 
-.actions {
+.valkey-page .actions {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--pf-t--global--spacer--sm);
+    gap: .5rem;
 }
 
-.field {
+.valkey-page .pf-v6-c-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-block-size: 2.5rem;
+    padding: .5rem 1rem;
+    border: 1px solid transparent;
+    border-radius: .25rem;
+    color: var(--valkey-text);
+    background: transparent;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.valkey-page .pf-v6-c-button:hover:not(:disabled) {
+    filter: brightness(.94);
+}
+
+.valkey-page .pf-v6-c-button.pf-m-primary {
+    border-color: var(--valkey-brand);
+    color: #fff;
+    background: var(--valkey-brand);
+}
+
+.valkey-page .pf-v6-c-button.pf-m-secondary {
+    border-color: var(--valkey-border);
+    background: var(--valkey-surface);
+}
+
+.valkey-page .pf-v6-c-button.pf-m-danger {
+    border-color: var(--valkey-danger);
+    color: #fff;
+    background: var(--valkey-danger);
+}
+
+.valkey-page .pf-v6-c-button:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+}
+
+.valkey-page .field {
     max-inline-size: 40rem;
-    margin-block-end: var(--pf-t--global--spacer--md);
+    margin-block-end: 1rem;
 }
 
-.error {
+.valkey-page .pf-v6-c-form__label {
     display: block;
-    min-block-size: var(--pf-t--global--font--size--body--default);
-    color: var(--pf-t--global--text--color--status--danger--default);
+    margin-block-end: .35rem;
+    font-weight: 600;
 }
 
-.status-values {
-    --pf-v6-c-description-list--GridTemplateColumns: minmax(12rem, max-content) 1fr;
+.valkey-page .pf-v6-c-form-control {
+    display: block;
+    inline-size: 100%;
+    min-block-size: 2.5rem;
+    padding: .5rem .65rem;
+    border: 1px solid var(--valkey-border);
+    border-radius: .25rem;
+    color: var(--valkey-text);
+    background: var(--valkey-bg);
+    font: inherit;
 }
 
-.status-values dd {
+.valkey-page textarea.pf-v6-c-form-control {
+    resize: vertical;
+}
+
+.valkey-page .error {
+    display: block;
+    min-block-size: 1.5em;
+    color: var(--valkey-danger);
+}
+
+.valkey-page .status-values {
+    display: grid;
+    grid-template-columns: minmax(12rem, max-content) 1fr;
+    gap: .5rem 1rem;
+}
+
+.valkey-page .status-values dd {
     margin: 0;
 }
 
-.metrics {
+.valkey-page .metrics {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
-    gap: var(--pf-t--global--spacer--md);
+    gap: 1rem;
 }
 
-.metric {
+.valkey-page .metric {
     min-inline-size: 0;
-    padding: var(--pf-t--global--spacer--md);
-    border: var(--pf-t--global--border--width--100) solid var(--pf-t--global--border--color--default);
-    background: var(--pf-t--global--background--color--primary--default);
+    padding: 1rem;
+    border: 1px solid var(--valkey-border);
+    background: var(--valkey-surface);
 }
 
-.metric h3 {
-    margin-block-start: 0;
+.valkey-page .metric h3 {
+    margin-block-end: .5rem;
 }
 
-.metric-value {
-    margin-block: var(--pf-t--global--spacer--sm);
-    font-size: var(--pf-t--global--font--size--2xl);
-    font-weight: var(--pf-t--global--font--weight--heading--bold);
+.valkey-page .metric-value {
+    margin-block: .5rem;
+    font-size: 1.5rem;
+    font-weight: 700;
 }
 
-.sparkline {
+.valkey-page .sparkline {
     display: block;
     inline-size: 100%;
     block-size: 5rem;
 }
 
-.sparkline polyline {
+.valkey-page .sparkline polyline {
     fill: none;
-    stroke: var(--pf-t--global--icon--color--status--info--default);
+    stroke: var(--valkey-brand);
     stroke-width: 2;
     vector-effect: non-scaling-stroke;
 }
 
-#messages-list {
+.valkey-page #messages-list {
+    padding-inline-start: 1.5rem;
     overflow-wrap: anywhere;
 }
 
+.valkey-page [hidden] {
+    display: none !important;
+}
+
 @media (max-width: 767px) {
-    .status-values {
-        --pf-v6-c-description-list--GridTemplateColumns: 1fr;
+    .valkey-page .pf-v6-c-page__main-section,
+    .valkey-page .tab-panel {
+        padding: 1rem;
+    }
+
+    .valkey-page .tab-list {
+        padding-inline: 1rem;
+    }
+
+    .valkey-page .status-values {
+        grid-template-columns: 1fr;
     }
 }

@@ -23,20 +23,19 @@ then implement the page and focused checks.
 
 ## Start with one good prompt
 
-Copy this template, replace the path and request, and add any constraints:
+Give the architect the target repository and the outcome you want:
 
 ```text
-/cockpit-plugin In /path/to/plugin-repo, implement [desired feature].
-First inspect the existing architecture, dependencies, Cockpit/PatternFly
-patterns, backend options, tests, and packaging. Ask before assuming privilege,
-secrets, persistence, or destructive behavior. Then implement the smallest
-maintainable change with loading, empty, success, and error states, focused
-tests, documentation, translations, and verification.
+/cockpit-plugin In /path/to/plugin-repo, add [what I want].
+The architect should inspect the project, ask about important assumptions,
+coordinate the specialists, implement the change, and verify it.
 ```
 
-For later feedback, include the exact browser error, service output, or
-reproduction steps. To improve this suite after a completed task, run
-`/improve-cockpit-agents` with the final diff and validation evidence.
+For better results, mention only the important constraints—for example a
+supported service version, privilege limits, secret handling, or “keep the
+existing UI behavior”. For later feedback, include the exact browser error,
+service output, or reproduction steps. To improve this suite after a completed
+task, run `/improve-cockpit-agents` with the final diff and validation evidence.
 
 ## Who does what
 

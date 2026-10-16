@@ -279,6 +279,108 @@
     }
   }
 
+  // render.js
+  var DomCompatibilityError = class extends Error {
+    constructor(message2) {
+      super(message2);
+      this.name = "DomCompatibilityError";
+    }
+  };
+  function renderConfiguration(schema, parsed, { document: document2, translate, edited }) {
+    const editable = document2.getElementById("editable-grid");
+    const readonly = document2.getElementById("readonly-grid");
+    if (!editable || !readonly)
+      throw new DomCompatibilityError(translate("Cockpit configuration assets are incompatible: the editable and read-only grids are required."));
+    editable.replaceChildren();
+    readonly.replaceChildren();
+    const states = {};
+    for (const [id2, grid] of [["editable-state", editable], ["readonly-state", readonly]]) {
+      let node = document2.getElementById(id2);
+      if (!node) {
+        node = document2.createElement("p");
+        node.id = id2;
+        node.setAttribute("role", "status");
+        grid.append(node);
+      }
+      states[id2] = node;
+    }
+    const groups = /* @__PURE__ */ new Map();
+    const inputId = (item) => `option-${item.section}-${item.key}`.replace(/[^A-Za-z0-9_-]/g, "-");
+    for (const item of schema) {
+      const target = item.editable ? editable : readonly, group = `${item.editable}:${item.section}`;
+      if (!groups.has(group)) {
+        const card = document2.createElement("section");
+        card.className = "pf-v6-c-card";
+        card.setAttribute("aria-labelledby", `${item.editable ? "editable" : "readonly"}-${item.section}`);
+        const header = document2.createElement("div");
+        header.className = "pf-v6-c-card__header";
+        const title = document2.createElement("h2");
+        title.className = "pf-v6-c-card__title pf-v6-c-title pf-m-lg";
+        title.id = `${item.editable ? "editable" : "readonly"}-${item.section}`;
+        title.textContent = `[${item.section}]`;
+        header.append(title);
+        const body = document2.createElement("div");
+        body.className = "pf-v6-c-card__body";
+        card.append(header, body);
+        target.append(card);
+        groups.set(group, body);
+      }
+      const field = document2.createElement("div");
+      field.className = "pf-v6-c-form__group";
+      const id2 = inputId(item), option = `${item.section}.${item.key}`;
+      const help = document2.createElement("p");
+      help.className = "pf-v6-c-form__helper-text";
+      help.id = `${id2}-help`;
+      help.textContent = translate(item.help);
+      if (item.editable) {
+        const input = document2.createElement("input");
+        input.className = item.type === "boolean" ? "pf-v6-c-check__input" : "pf-v6-c-form-control";
+        input.id = id2;
+        input.dataset.option = option;
+        input.setAttribute("aria-describedby", help.id);
+        input.type = item.type === "boolean" ? "checkbox" : item.type === "integer" ? "number" : "text";
+        if (item.validation?.maxLength)
+          input.maxLength = item.validation.maxLength;
+        if (item.type === "integer") {
+          input.min = item.min;
+          input.max = item.max;
+          input.step = "1";
+        }
+        if (item.type !== "boolean") {
+          input.value = parsed.values[option] || "";
+          input.placeholder = item.placeholder || item.examples?.[0] || "";
+        } else
+          input.checked = parsed.presence[option] ? parsed.values[option] === "true" : item.default === true;
+        input.addEventListener("input", () => edited.add(option));
+        input.addEventListener("change", () => edited.add(option));
+        if (item.type === "boolean") {
+          const check = document2.createElement("div");
+          check.className = "pf-v6-c-check";
+          const label = document2.createElement("label");
+          label.className = "pf-v6-c-check__label";
+          label.htmlFor = id2;
+          label.textContent = item.key;
+          check.append(input, label);
+          field.append(check, help);
+        } else {
+          const label = document2.createElement("label");
+          label.className = "pf-v6-c-form__label";
+          label.htmlFor = id2;
+          label.textContent = item.key;
+          field.append(label, help, input);
+        }
+      } else {
+        const value = document2.createElement("code");
+        value.className = "readonly";
+        value.textContent = parsed.values[option] || translate("not set");
+        field.append(value);
+      }
+      groups.get(group).append(field);
+    }
+    states["editable-state"].textContent = schema.some((item) => item.editable) ? "" : translate("No safely editable options were found.");
+    states["readonly-state"].textContent = schema.some((item) => !item.editable) ? "" : translate("No read-only options were found.");
+  }
+
   // cockpit-config.js
   var _ = cockpit.gettext;
   var DEFAULT_PATH = "/etc/cockpit/cockpit.conf";
@@ -287,8 +389,7 @@
   var state = { schema: STATIC_SCHEMA, content: null, file: null, path: DEFAULT_PATH, presence: {}, initial: {}, busy: false, domReady: false, loaded: false, edited: /* @__PURE__ */ new Set() };
   var errorText = (ex) => ex?.message || ex?.problem || String(ex);
   var message = (template, ex) => template.replace("{error}", errorText(ex));
-  var inputId = (item) => `option-${item.section}-${item.key}`.replace(/[^A-Za-z0-9_-]/g, "-");
-  var REQUIRED_IDS = ["global-status", "editable-grid", "readonly-grid", "editable-state", "readonly-state", "path-status", "title", "description", "security-warning", "path-label", "tab-list", "tab-editable", "tab-readonly", "panel-editable", "panel-readonly", "save", "refresh"];
+  var REQUIRED_IDS = ["global-status", "editable-grid", "readonly-grid", "path-status", "title", "description", "security-warning", "path-label", "tab-list", "tab-editable", "tab-readonly", "panel-editable", "panel-readonly", "save", "refresh"];
   function checkDomContract() {
     const missing = missingRequiredIds(new Set(REQUIRED_IDS.filter((id2) => $(id2))), REQUIRED_IDS);
     if (!missing.length)
@@ -368,83 +469,7 @@
     node.classList.toggle("pf-m-danger", error);
   }
   function render(schema, parsed) {
-    const editable = $("editable-grid"), readonly = $("readonly-grid");
-    editable.replaceChildren();
-    readonly.replaceChildren();
-    const groups = /* @__PURE__ */ new Map();
-    for (const item of schema) {
-      const target = item.editable ? editable : readonly, group = `${item.editable}:${item.section}`;
-      if (!groups.has(group)) {
-        const card = document.createElement("section");
-        card.className = "pf-v6-c-card";
-        card.setAttribute("aria-labelledby", `${item.editable ? "editable" : "readonly"}-${item.section}`);
-        const header = document.createElement("div");
-        header.className = "pf-v6-c-card__header";
-        const title = document.createElement("h2");
-        title.className = "pf-v6-c-card__title pf-v6-c-title pf-m-lg";
-        title.id = `${item.editable ? "editable" : "readonly"}-${item.section}`;
-        title.textContent = `[${item.section}]`;
-        header.append(title);
-        const body = document.createElement("div");
-        body.className = "pf-v6-c-card__body";
-        card.append(header, body);
-        target.append(card);
-        groups.set(group, body);
-      }
-      const field = document.createElement("div");
-      field.className = "pf-v6-c-form__group";
-      const id2 = inputId(item), option = `${item.section}.${item.key}`;
-      const help = document.createElement("p");
-      help.className = "pf-v6-c-form__helper-text";
-      help.id = `${id2}-help`;
-      help.textContent = _(item.help);
-      if (item.editable) {
-        const input = document.createElement("input");
-        input.className = item.type === "boolean" ? "pf-v6-c-check__input" : "pf-v6-c-form-control";
-        input.id = id2;
-        input.dataset.option = option;
-        input.setAttribute("aria-describedby", help.id);
-        input.type = item.type === "boolean" ? "checkbox" : item.type === "integer" ? "number" : "text";
-        if (item.validation?.maxLength)
-          input.maxLength = item.validation.maxLength;
-        if (item.type === "integer") {
-          input.min = item.min;
-          input.max = item.max;
-          input.step = "1";
-        }
-        if (item.type !== "boolean") {
-          input.value = parsed.values[option] || "";
-          input.placeholder = item.placeholder || item.examples?.[0] || "";
-        } else
-          input.checked = parsed.presence[option] ? normalizeBoolean(parsed.values[option]) === "true" : item.default === true;
-        input.addEventListener("input", () => state.edited.add(option));
-        input.addEventListener("change", () => state.edited.add(option));
-        if (item.type === "boolean") {
-          const check = document.createElement("div");
-          check.className = "pf-v6-c-check";
-          const label = document.createElement("label");
-          label.className = "pf-v6-c-check__label";
-          label.htmlFor = id2;
-          label.textContent = item.key;
-          check.append(input, label);
-          field.append(check, help);
-        } else {
-          const label = document.createElement("label");
-          label.className = "pf-v6-c-form__label";
-          label.htmlFor = id2;
-          label.textContent = item.key;
-          field.append(label, help, input);
-        }
-      } else {
-        const value = document.createElement("code");
-        value.className = "readonly";
-        value.textContent = parsed.values[option] || _("not set");
-        field.append(value);
-      }
-      groups.get(group).append(field);
-    }
-    $("editable-state").textContent = schema.some((item) => item.editable) ? "" : _("No safely editable options were found.");
-    $("readonly-state").textContent = schema.some((item) => !item.editable) ? "" : _("No read-only options were found.");
+    return renderConfiguration(schema, parsed, { document, translate: _, edited: state.edited });
   }
   function formChanges() {
     const changes = {};
@@ -497,9 +522,8 @@
     } catch (ex) {
       state.file = null;
       state.loaded = false;
-      status(message(_("Could not load the configuration: {error}"), ex), true);
-      $("editable-grid")?.replaceChildren();
-      $("readonly-grid")?.replaceChildren();
+      const prefix = ex instanceof DomCompatibilityError ? _("Could not render the configuration: {error}") : _("Could not load the configuration: {error}");
+      status(message(prefix, ex), true);
     } finally {
       setBusy(false);
     }

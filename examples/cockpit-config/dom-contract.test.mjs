@@ -1,7 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { assetRevisionMatches, canSave, missingRequiredIds, modifyAndRefresh } from "./save-flow.js";
+import { assetRevisionMatches, canSave, modifyAndRefresh } from "./save-flow.js";
+import { DomCompatibilityError, renderConfiguration } from "./render.js";
 
 const html = await readFile(new URL("./cockpit-config.html", import.meta.url), "utf8");
 const ids = new Set([...html.matchAll(/\bid="([^"]+)"/g)].map(match => match[1]));
@@ -38,8 +39,27 @@ test("Save remains blocked after load failure and before DOM readiness", () => {
     assert.equal(canSave({ domReady: true, loaded: true, file: {} }), true);
 });
 
-test("a missing state element is detected by the startup contract", () => {
-    assert.deepEqual(missingRequiredIds(new Set(["global-status", "editable-grid"]), ["global-status", "editable-grid", "editable-state"]), ["editable-state"]);
+test("missing optional state labels are created and cards still render", () => {
+    class Node {
+        constructor(tag) { this.tagName = tag.toUpperCase(); this.children = []; this.dataset = {}; this.classList = { toggle() {} }; }
+        append(...nodes) { this.children.push(...nodes); }
+        replaceChildren(...nodes) { this.children = nodes; }
+        setAttribute() {}
+        addEventListener() {}
+    }
+    const root = new Node("main"), editable = new Node("div"), readonly = new Node("div"); editable.id = "editable-grid"; readonly.id = "readonly-grid"; root.append(editable, readonly);
+    const document = { createElement: tag => new Node(tag), getElementById: id => [root, ...root.children, ...root.children.flatMap(node => node.children)].find(node => node.id === id) };
+    const schema = [{ section: "Session", key: "IdleTimeout", type: "integer", editable: true, help: "Idle timeout", min: 0, max: 60 }, { section: "WebService", key: "Origins", type: "text", editable: false, help: "Origins" }];
+    renderConfiguration(schema, { values: { "Session.IdleTimeout": "15", "WebService.Origins": "https://example.test" }, presence: {} }, { document, translate: text => text, edited: new Set() });
+    assert.ok(editable.children.some(node => node.id === "editable-state"));
+    assert.ok(readonly.children.some(node => node.id === "readonly-state"));
+    assert.equal(editable.children.filter(node => node.className === "pf-v6-c-card").length, 1);
+    assert.equal(readonly.children.filter(node => node.className === "pf-v6-c-card").length, 1);
+});
+
+test("missing essential grids produce a clear DOM compatibility error", () => {
+    assert.throws(() => renderConfiguration([], { values: {}, presence: {} }, { document: { getElementById: () => null }, translate: text => text, edited: new Set() }), DomCompatibilityError);
+    assert.throws(() => renderConfiguration([], { values: {}, presence: {} }, { document: { getElementById: () => null }, translate: text => text, edited: new Set() }), /editable and read-only grids are required/);
 });
 
 test("a successful modify followed by render failure is reported as saved", async () => {
@@ -61,7 +81,7 @@ test("mixed HTML and bundle revisions are rejected", () => {
 });
 
 test("boolean controls use an inline accessible check structure", async () => {
-    for (const file of ["cockpit-config.js", "cockpit-config.bundle.js"]) {
+    for (const file of ["render.js", "cockpit-config.bundle.js"]) {
         const source = await readFile(new URL(`./${file}`, import.meta.url), "utf8");
         assert.match(source, /pf-v6-c-check/);
         assert.match(source, /pf-v6-c-check__input/);

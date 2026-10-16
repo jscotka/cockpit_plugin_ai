@@ -24,6 +24,14 @@ test("the startup contract includes the revision marker and disabled Save", () =
     assert.match(html, /id="save"[^>]*disabled/);
 });
 
+test("the standalone main keeps the page content in one full-width flow", () => {
+    assert.match(html, /<div class="cockpit-config-root"[^>]*>\s*<main tabindex="-1">/);
+    assert.doesNotMatch(html, /<main[^>]*class=/);
+    assert.match(html, /<h1[^>]*id="title"[\s\S]*?<p[^>]*id="global-status"/);
+    assert.match(html, /<div class="pf-v6-c-tabs"[\s\S]*?<section class="pf-v6-c-tab-content"/);
+    assert.match(html, /<div class="config-actions"[\s\S]*?id="save"/);
+});
+
 test("Save remains blocked after load failure and before DOM readiness", () => {
     assert.equal(canSave({ domReady: false, loaded: true, file: {} }), false);
     assert.equal(canSave({ domReady: true, loaded: false, file: {} }), false);

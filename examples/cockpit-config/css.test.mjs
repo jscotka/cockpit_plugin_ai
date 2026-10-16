@@ -2,17 +2,23 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
-test("generated CSS contains the standalone PatternFly v6 page components", async () => {
+test("generated CSS contains the standalone PatternFly v6 components without shell Page layout", async () => {
     const css = await readFile(new URL("./cockpit-config.css", import.meta.url), "utf8");
-    for (const selector of [".pf-v6-c-page", ".pf-v6-c-title", ".pf-v6-c-card", ".pf-v6-c-button", ".pf-v6-c-tabs", ".pf-v6-c-form", ".pf-v6-c-form-control", ".pf-v6-c-helper-text", ".pf-v6-c-check", ".pf-v6-c-alert", ".pf-v6-theme-dark"])
+    for (const selector of [".pf-v6-c-title", ".pf-v6-c-card", ".pf-v6-c-button", ".pf-v6-c-tabs", ".pf-v6-c-form", ".pf-v6-c-form-control", ".pf-v6-c-helper-text", ".pf-v6-c-check", ".pf-v6-c-alert", ".pf-v6-theme-dark"])
         assert.match(css, new RegExp(selector.replaceAll(".", "\\.")), `${selector} is missing from generated CSS`);
+    assert.doesNotMatch(css, /(?:^|[,{\s])\.pf-v6-c-page(?:\s*[{,:]|$)/i, "standalone CSS must not include the PatternFly Page root selector");
+    assert.doesNotMatch(css, /\.pf-v6-c-page__sidebar|18\.125rem\s+1fr/i, "standalone CSS must not include the Page sidebar grid");
     assert.match(css, /:focus-visible|:focus-within/, "focus CSS is missing");
     assert.match(css, /:disabled|disabled/, "disabled CSS is missing");
     assert.match(css, /--pf-t--global--/, "PatternFly semantic theme tokens are missing");
     assert.match(css, /@media \(max-width: 600px\)/, "responsive CSS is missing");
+    assert.match(css, /\.cockpit-config-root\s*\{[^}]*width:\s*100%/s, "standalone root is not full width");
+    assert.match(css, /\.cockpit-config-root > main,[\s\S]*?\.cockpit-config-root \.pf-v6-c-tab-content\s*\{\s*width:\s*100%/s, "main and tab panels are not full width");
     assert.doesNotMatch(css, /pf-v5-/i, "generated CSS must not mix PatternFly v5 selectors");
-    assert.match(await readFile(new URL("./cockpit-config.html", import.meta.url), "utf8"), /pf-v6-c-/g);
-    assert.doesNotMatch(await readFile(new URL("./cockpit-config.html", import.meta.url), "utf8"), /pf-v5-/);
+    const html = await readFile(new URL("./cockpit-config.html", import.meta.url), "utf8");
+    assert.match(html, /<main(?:\s[^>]*)?>/);
+    assert.doesNotMatch(html, /<main[^>]*class="[^"]*pf-v6-c-page/);
+    assert.doesNotMatch(html, /pf-v5-/);
 });
 
 test("generated bundle contains the checked-in manifest revision and comparison-only man handling", async () => {

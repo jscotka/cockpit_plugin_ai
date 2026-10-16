@@ -8,7 +8,6 @@
 );
 @use "@patternfly/patternfly/assets/fontawesome/variables" with ($pf-v6-global--disable-fontawesome: true);
 @use "@patternfly/patternfly/patternfly-base";
-@use "@patternfly/patternfly/components/Page/page";
 @use "@patternfly/patternfly/components/Title/title";
 @use "@patternfly/patternfly/components/Card/card";
 @use "@patternfly/patternfly/components/Button/button";
@@ -22,13 +21,14 @@
 
 // Unique page scope for the standalone layout rules.
 .cockpit-config-root {
+    box-sizing: border-box;
     min-height: 100vh;
     padding: 1.5rem;
+    width: 100%;
     color: var(--pf-t--global--text--color--regular);
     background: var(--pf-t--global--background--color--primary--default);
 
-    .pf-v6-c-page,
-    main,
+    > main,
     .pf-v6-c-tabs,
     .pf-v6-c-tab-content { width: 100%; }
 

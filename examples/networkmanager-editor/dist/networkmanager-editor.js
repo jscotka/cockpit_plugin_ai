@@ -70,14 +70,41 @@
     if (value && typeof value === "object" && !(value instanceof Uint8Array)) return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, unwrap(item)]));
     return value;
   }
+  function encodeBase64(bytes2) {
+    if (globalThis.cockpit?.base64_encode) return cockpit.base64_encode(bytes2);
+    if (globalThis.btoa) {
+      let binary = "";
+      for (const byte of bytes2) binary += String.fromCharCode(byte);
+      return btoa(binary);
+    }
+    return Buffer.from(bytes2).toString("base64");
+  }
+  function decodeBase64(value) {
+    if (typeof value !== "string") return new Uint8Array(value || []);
+    if (globalThis.cockpit?.base64_decode) return new Uint8Array(cockpit.base64_decode(value));
+    if (globalThis.atob) {
+      const binary = atob(value);
+      return Uint8Array.from(binary, (character) => character.charCodeAt(0));
+    }
+    return new Uint8Array(Buffer.from(value, "base64"));
+  }
+  function bytes(value) {
+    return value instanceof Uint8Array ? value : decodeBase64(value);
+  }
+  function byteArray(value) {
+    return variant("ay", encodeBase64(bytes(value)));
+  }
+  function byteArrayValue(value) {
+    return byteArray(value).v;
+  }
   function variant(signature, value) {
-    return globalThis.cockpit?.variant ? cockpit.variant(signature, value) : { t: signature, v: value };
+    return globalThis.cockpit?.variant ? cockpit.variant(signature, value) : { t: signature, v: signature === "ay" ? encodeBase64(bytes(value)) : value };
   }
   function infer(value) {
     if (typeof value === "boolean") return variant("b", value);
     if (typeof value === "number") return variant(Number.isInteger(value) ? "i" : "d", value);
     if (typeof value === "string") return variant("s", value);
-    if (value instanceof Uint8Array) return variant("ay", value);
+    if (value instanceof Uint8Array) return byteArray(value);
     if (Array.isArray(value)) return variant("as", value);
     if (value && typeof value === "object") return variant("a{sv}", Object.fromEntries(Object.entries(value).map(([key, item]) => [key, infer(item)])));
     return variant("s", "");
@@ -197,7 +224,7 @@
 
   // src/discovery.js
   var EDITABLE_TYPES = /* @__PURE__ */ new Set(["802-3-ethernet", "802-11-wireless"]);
-  var ACTIVE_CONNECTION = "org.freedesktop.NetworkManager.ActiveConnection";
+  var ACTIVE_CONNECTION = "org.freedesktop.NetworkManager.Connection.Active";
   async function property(call2, path, iface, name) {
     const [value] = await call2(path, PROP, "Get", [iface, name]);
     return value;
@@ -264,11 +291,6 @@
 
   // src/settings.js
   var _3 = globalThis.cockpit?.gettext || ((value) => value);
-  function bytes(value) {
-    if (value instanceof Uint8Array) return value;
-    if (Array.isArray(value)) return new Uint8Array(value);
-    return new Uint8Array();
-  }
   function ipv4ToUint32(address2) {
     return address2.split(".").reduce((value, octet) => value * 256 + Number(octet), 0) >>> 0;
   }
@@ -312,12 +334,18 @@
     if (bestLength < 2) return groups.join(":");
     return `${groups.slice(0, bestStart).join(":")}::${groups.slice(bestStart + bestLength).join(":")}`;
   }
+  function bytesToMac(value) {
+    return [...bytes(value)].map((byte) => byte.toString(16).padStart(2, "0")).join(":");
+  }
+  function macToBytes(value) {
+    return new Uint8Array(value.split(":").map((part) => Number.parseInt(part, 16)));
+  }
   function ipv4AddressesFromSettings(section = {}) {
     return (unwrap(section.addresses) || []).map((address2) => Array.isArray(address2) ? `${uint32ToIpv4(address2[0])}/${address2[1]}` : address2);
   }
   function ipv6AddressesFromSettings(section = {}) {
     const modern = unwrap(section["address-data"]);
-    if (Array.isArray(modern)) return modern.map((item) => `${item.address || item.Address}/${item.prefix || item.Prefix}`);
+    if (Array.isArray(modern)) return modern.map((item) => `${bytesToIpv6(item.address || item.Address)}/${item.prefix || item.Prefix}`);
     return (unwrap(section.addresses) || []).map((address2) => `${bytesToIpv6(address2[0])}/${address2[1]}`);
   }
   function dnsFromSettings(family, section = {}) {
@@ -327,20 +355,24 @@
   function addressData(addresses) {
     return variant("aa{sv}", addresses.map((value) => {
       const [address2, prefix2] = value.split("/");
-      return { address: variant("s", address2), prefix: variant("u", Number(prefix2)) };
+      return { address: variant("ay", byteArrayValue(ipv6ToBytes(address2))), prefix: variant("u", Number(prefix2)) };
     }));
   }
-  function ipv4LegacyAddresses(addresses) {
+  function ipv4LegacyAddresses(addresses, gateway = "") {
+    const gatewayValue = gateway ? ipv4ToUint32(gateway) : 0;
     return variant("aau", addresses.map((value) => {
       const [address2, prefix2] = value.split("/");
-      return [ipv4ToUint32(address2), Number(prefix2), 0];
+      return [ipv4ToUint32(address2), Number(prefix2), gatewayValue];
     }));
   }
   function dnsValues(family, values) {
-    return variant(family === "ipv6" ? "aay" : "au", values.map((value) => family === "ipv6" ? ipv6ToBytes(value) : ipv4ToUint32(value)));
+    return variant(family === "ipv6" ? "aay" : "au", values.map((value) => family === "ipv6" ? byteArrayValue(ipv6ToBytes(value)) : ipv4ToUint32(value)));
   }
   function readGateway(section = {}) {
-    return unwrap(section.gateway) || "";
+    const explicit = unwrap(section.gateway);
+    if (explicit) return explicit;
+    const legacy = unwrap(section.addresses)?.find((address2) => Array.isArray(address2) && address2[2]);
+    return legacy ? uint32ToIpv4(legacy[2]) : "";
   }
 
   // src/save-flow.js
@@ -388,9 +420,7 @@
     $(id).value = value ?? "";
   }
   function bytesToText(value) {
-    if (value instanceof Uint8Array) return new TextDecoder().decode(value);
-    if (Array.isArray(value)) return new TextDecoder().decode(new Uint8Array(value));
-    return value || "";
+    return new TextDecoder().decode(bytes(value));
   }
   function textToBytes(value) {
     return new Uint8Array(new TextEncoder().encode(value));
@@ -460,11 +490,11 @@
     $("autoconnect-field").checked = Boolean(unwrap(c.autoconnect));
     textValue("interface-field", unwrap(c["interface-name"]));
     textValue("mtu-field", unwrap(ethernet.mtu ?? wifi.mtu));
-    textValue("mac-field", bytesToText(unwrap(ethernet["mac-address"] ?? wifi["mac-address"])));
+    textValue("mac-field", bytesToMac(unwrap(ethernet["mac-address"] ?? wifi["mac-address"])));
     textValue("ssid-field", bytesToText(unwrap(wifi.ssid)));
     $("wifi-mode-field").value = unwrap(wifi.mode) || "infrastructure";
     $("hidden-field").checked = Boolean(unwrap(wifi.hidden));
-    textValue("bssid-field", bytesToText(unwrap(wifi.bssid)));
+    textValue("bssid-field", bytesToMac(unwrap(wifi.bssid)));
     $("security-field").value = state.settings["802-11-wireless-security"] ? "wpa-psk" : "none";
     textValue("psk-field", "");
     $("ipv4-method").value = unwrap(v4.method) || "auto";
@@ -495,12 +525,12 @@
     const linkName = values.type === "802-11-wireless" ? "802-11-wireless" : "802-3-ethernet", link = setSection(settings, linkName);
     if (values.mtu === "") delete link.mtu;
     else link.mtu = variant("u", Number(values.mtu));
-    setOrDelete(link, "mac-address", values.mac ? textToBytes(values.mac) : void 0);
+    setOrDelete(link, "mac-address", values.mac ? byteArray(macToBytes(values.mac)) : void 0);
     if (values.type === "802-11-wireless") {
-      link.ssid = variant("ay", textToBytes(values.ssid));
+      link.ssid = byteArray(textToBytes(values.ssid));
       link.mode = infer(values.mode);
       link.hidden = infer(values.hidden);
-      setOrDelete(link, "bssid", values.bssid ? textToBytes(values.bssid) : void 0);
+      setOrDelete(link, "bssid", values.bssid ? byteArray(macToBytes(values.bssid)) : void 0);
       const security = setSection(settings, "802-11-wireless-security");
       security["key-mgmt"] = infer(values.security === "wpa-psk" ? "wpa-psk" : "none");
       const secret = preserveSecret(state.settings, "802-11-wireless-security", "psk", values.psk);
@@ -509,7 +539,7 @@
     for (const [name, method, addresses, gateway, dns] of [["ipv4", values.ipv4.length ? "manual" : $("ipv4-method").value, values.ipv4, $("ipv4-gateway").value.trim(), $("ipv4-dns").value], ["ipv6", values.ipv6.length ? "manual" : $("ipv6-method").value, values.ipv6, $("ipv6-gateway").value.trim(), $("ipv6-dns").value]]) {
       const section = setSection(settings, name);
       section.method = infer(method);
-      if (name === "ipv4" && addresses.length) section.addresses = ipv4LegacyAddresses(addresses);
+      if (name === "ipv4" && addresses.length) section.addresses = ipv4LegacyAddresses(addresses, gateway);
       else if (name === "ipv6" && addresses.length) section["address-data"] = addressData(addresses);
       else {
         delete section.addresses;
@@ -676,7 +706,8 @@
       updateActivationButtons();
     } catch (error) {
       state.capabilities.checkpoint = false;
-      status(error.assetMismatch ? error.message : _4("NetworkManager is unavailable or authorization failed: {error}").replace("{error}", errorText(error)), true);
+      const authorization = /NotAuthorized|AccessDenied|PermissionDenied|authorization/i.test(error?.name || error?.problem || "");
+      status(error.assetMismatch ? error.message : authorization ? _4("NetworkManager authorization failed: {error}").replace("{error}", errorText(error)) : _4("NetworkManager is unavailable: {error}").replace("{error}", errorText(error)), true);
     } finally {
       document.body.hidden = false;
     }

@@ -40,6 +40,11 @@ The checked-in `schema.json` is authoritative for the schema-defined field
 types and validation; the UI/source also handles the displayed BSSID and IP
 address, gateway, and DNS values. The UI currently supports:
 
+Cockpit represents D-Bus `ay` and `aay` values as base64 strings. The editor
+decodes those strings for SSIDs, MAC/BSSID values, IPv6 addresses, and DNS
+servers, and encodes them again before `Update2` or `AddConnection2`. Legacy
+IPv4 address tuples retain their embedded numeric gateway where present.
+
 * common connection fields: profile name, automatic connection, and optional
   interface-name binding;
 * Ethernet: MTU and MAC address;

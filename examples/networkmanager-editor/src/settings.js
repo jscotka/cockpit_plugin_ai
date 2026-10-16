@@ -1,12 +1,6 @@
-import { unwrap, variant } from "./variants.js";
+import { bytes, byteArrayValue, unwrap, variant } from "./variants.js";
 
 const _ = globalThis.cockpit?.gettext || (value => value);
-
-function bytes(value) {
-    if (value instanceof Uint8Array) return value;
-    if (Array.isArray(value)) return new Uint8Array(value);
-    return new Uint8Array();
-}
 
 export function ipv4ToUint32(address) {
     return address.split(".").reduce((value, octet) => (value * 256) + Number(octet), 0) >>> 0;
@@ -44,13 +38,16 @@ export function bytesToIpv6(value) {
     return `${groups.slice(0, bestStart).join(":")}::${groups.slice(bestStart + bestLength).join(":")}`;
 }
 
+export function bytesToMac(value) { return [...bytes(value)].map(byte => byte.toString(16).padStart(2, "0")).join(":"); }
+export function macToBytes(value) { return new Uint8Array(value.split(":").map(part => Number.parseInt(part, 16))); }
+
 export function ipv4AddressesFromSettings(section = {}) {
     return (unwrap(section.addresses) || []).map(address => Array.isArray(address) ? `${uint32ToIpv4(address[0])}/${address[1]}` : address);
 }
 
 export function ipv6AddressesFromSettings(section = {}) {
     const modern = unwrap(section["address-data"]);
-    if (Array.isArray(modern)) return modern.map(item => `${item.address || item.Address}/${item.prefix || item.Prefix}`);
+    if (Array.isArray(modern)) return modern.map(item => `${bytesToIpv6(item.address || item.Address)}/${item.prefix || item.Prefix}`);
     return (unwrap(section.addresses) || []).map(address => `${bytesToIpv6(address[0])}/${address[1]}`);
 }
 
@@ -60,15 +57,21 @@ export function dnsFromSettings(family, section = {}) {
 }
 
 export function addressData(addresses) {
-    return variant("aa{sv}", addresses.map(value => { const [address, prefix] = value.split("/"); return { address: variant("s", address), prefix: variant("u", Number(prefix)) }; }));
+    return variant("aa{sv}", addresses.map(value => { const [address, prefix] = value.split("/"); return { address: variant("ay", byteArrayValue(ipv6ToBytes(address))), prefix: variant("u", Number(prefix)) }; }));
 }
 
-export function ipv4LegacyAddresses(addresses) {
-    return variant("aau", addresses.map(value => { const [address, prefix] = value.split("/"); return [ipv4ToUint32(address), Number(prefix), 0]; }));
+export function ipv4LegacyAddresses(addresses, gateway = "") {
+    const gatewayValue = gateway ? ipv4ToUint32(gateway) : 0;
+    return variant("aau", addresses.map(value => { const [address, prefix] = value.split("/"); return [ipv4ToUint32(address), Number(prefix), gatewayValue]; }));
 }
 
 export function dnsValues(family, values) {
-    return variant(family === "ipv6" ? "aay" : "au", values.map(value => family === "ipv6" ? ipv6ToBytes(value) : ipv4ToUint32(value)));
+    return variant(family === "ipv6" ? "aay" : "au", values.map(value => family === "ipv6" ? byteArrayValue(ipv6ToBytes(value)) : ipv4ToUint32(value)));
 }
 
-export function readGateway(section = {}) { return unwrap(section.gateway) || ""; }
+export function readGateway(section = {}) {
+    const explicit = unwrap(section.gateway);
+    if (explicit) return explicit;
+    const legacy = unwrap(section.addresses)?.find(address => Array.isArray(address) && address[2]);
+    return legacy ? uint32ToIpv4(legacy[2]) : "";
+}

@@ -2,7 +2,7 @@ import { CONNECTION, DEVICE, NM, NM_PATH, PROP, SETTINGS } from "./dbus-contract
 import { unwrap } from "./variants.js";
 
 export const EDITABLE_TYPES = new Set(["802-3-ethernet", "802-11-wireless"]);
-const ACTIVE_CONNECTION = "org.freedesktop.NetworkManager.ActiveConnection";
+const ACTIVE_CONNECTION = "org.freedesktop.NetworkManager.Connection.Active";
 
 async function property(call, path, iface, name) {
     const [value] = await call(path, PROP, "Get", [iface, name]);
@@ -66,8 +66,8 @@ export function classifyObjects(objects = {}) {
             profiles.push({ path, settings, type, editable: EDITABLE_TYPES.has(type) });
         }
         if (interfaces[DEVICE]) devices.push({ path, properties: interfaces[DEVICE] });
-        if (interfaces["org.freedesktop.NetworkManager.ActiveConnection"])
-            activeConnections.set(path, unwrap(interfaces["org.freedesktop.NetworkManager.ActiveConnection"].Connection));
+        if (interfaces[ACTIVE_CONNECTION])
+            activeConnections.set(path, unwrap(interfaces[ACTIVE_CONNECTION].Connection));
     }
     return { profiles, devices, activeConnections };
 }

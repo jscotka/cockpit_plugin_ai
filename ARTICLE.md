@@ -4,7 +4,7 @@ Cockpit plugins are most useful when they put a real host interface within
 reach: a service that needs managing, configuration that needs editing, metrics
 that need explaining, a system API or D-Bus object that needs a careful UI, or
 a file and controlled administrative action that should not be hidden behind a
-terminal. This repository is a project-local AI-agent suite for helping
+terminal. This [project-local AI-agent suite](https://github.com/jscotka/cockpit_plugin_ai) is for helping
 developers build that kind of plugin in an **existing target repository**. It
 starts from the code, dependencies, packaging, and host interfaces already
 there—not from a generic demo application.
@@ -60,21 +60,21 @@ later.
 
 ## A small team, not a single improviser
 
-The architect is the coordinator. First, it reads the repository and turns the
+[The architect](.opencode/agent/cockpit-plugin-architect.md) is the coordinator. First, it reads the repository and turns the
 request into requirements, risks, open questions, and acceptance criteria. Once
 the important decisions are clear, it gives the same approved context to a
 small set of specialists. Their work is deliberately complementary:
 
-- **UI designer:** turns host state into accessible, responsive PatternFly
+- **[UI designer](.opencode/agent/cockpit-ui-designer.md):** turns host state into accessible, responsive PatternFly
   structure with clear loading, empty, error, and theme states.
-- **Backend advisor:** checks transport, lifecycle, privilege boundaries,
+- **[Backend advisor](.opencode/agent/cockpit-backend-advisor.md):** checks transport, lifecycle, privilege boundaries,
   validation, input safety, and failure behavior for commands, files, or APIs.
-- **Plugin builder:** fits the implementation, dependencies, build output, and
+- **[Plugin builder](.opencode/agent/cockpit-plugin-builder.md):** fits the implementation, dependencies, build output, and
   packaging into the target project's architecture.
-- **Documentation and localization writers:** make the shipped behavior,
+- **[Documentation writer](.opencode/agent/cockpit-documentation-writer.md) and [localization specialist](.opencode/agent/cockpit-i18n-specialist.md):** make the shipped behavior,
   installation, and user-facing text match the implementation and Cockpit
   conventions.
-- **Integration tester and feedback reviewer:** examine the focused checks and
+- **[Integration tester](.opencode/agent/cockpit-integration-tester.md) and [feedback reviewer](.opencode/agent/cockpit-feedback-reviewer.md):** examine the focused checks and
   the exact browser, service, or host evidence instead of guessing from a
   symptom.
 
@@ -100,7 +100,7 @@ example defines the suite.
 
 ### Valkey: service, metrics, and controlled operations
 
-[`examples/valkey`](examples/valkey) is an MVP for Fedora 44 and Cockpit test
+The [`examples/valkey` directory](examples/valkey) is an MVP for Fedora 44 and Cockpit test
 images, not a universal Valkey installer. Its manifest exposes Overview,
 Configuration, and Message debugging tabs. The page can install the exact
 `valkey` package through PackageKit, manage `valkey.service`, edit four
@@ -121,7 +121,7 @@ and transport library does not provide a runtime global stylesheet**.
 
 ### Cockpit configuration: schema as a contract
 
-[`examples/cockpit-config`](examples/cockpit-config) edits the active
+The [`examples/cockpit-config` directory](examples/cockpit-config) edits the active
 `cockpit.conf` while preserving comments and unmanaged directives. It requires
 Cockpit administrative access, uses conflict-aware `cockpit.file().modify()`,
 and reports a successful file write separately from a failed
@@ -129,7 +129,7 @@ and reports a successful file write separately from a failed
 [`schema.json`](examples/cockpit-config/schema.json) defines editable options,
 types, ranges, defaults, help, examples, and editability. The installed
 `cockpit.conf(5)` page is only a non-blocking comparison for documentation drift;
-it does not invent controls.
+it does not invent controls ([example README](examples/cockpit-config/README.md)).
 
 ![Cockpit configuration editor showing schema-backed settings](cockpit-config.png)
 *Cockpit configuration editor example.*
@@ -148,7 +148,7 @@ remains environment-dependent. Tests can support a claim, but they do not by
 themselves prove privileged or browser end-to-end integration. A later feedback
 request should include the exact error, reproduction steps, service output, or
 loaded asset evidence so agents can inspect the current diff instead of
-guessing. The `/improve-cockpit-agents` command can turn a proven lesson into a
+guessing. The [`/improve-cockpit-agents` command](.opencode/command/improve-cockpit-agents.md), guided by the [agent maintainer](.opencode/agent/cockpit-agent-maintainer.md), can turn a proven lesson into a
 better suite rule without changing plugin source.
 
 ## Conclusion

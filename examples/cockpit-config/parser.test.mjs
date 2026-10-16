@@ -133,5 +133,5 @@ test("rejects unsafe or malformed schema manifests", () => {
     assert.throws(() => validateSchema(valid({ type: "text", editable: true, validation: undefined })), /Validation metadata/);
     assert.throws(() => validateSchema(valid({ validation: {} })), /Validation metadata/);
     assert.throws(() => validateSchema(valid({ securityRationale: "" })), /Security rationale/);
-    assert.throws(() => validateSchema(valid({ editable: false, readOnlyRationale: "" })), /Read-only rationale/);
+    assert.throws(() => validateSchema(valid({ editable: false })), /must be editable/);
 });

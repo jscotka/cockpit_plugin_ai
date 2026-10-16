@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { assetRevisionMatches, canSave, modifyAndRefresh } from "./save-flow.js";
 import { DomCompatibilityError, renderConfiguration } from "./render.js";
+import { STATIC_SCHEMA } from "./parser.js";
 
 const html = await readFile(new URL("./cockpit-config.html", import.meta.url), "utf8");
 const ids = new Set([...html.matchAll(/\bid="([^"]+)"/g)].map(match => match[1]));
@@ -29,7 +30,8 @@ test("the standalone main keeps the page content in one full-width flow", () => 
     assert.match(html, /<div class="cockpit-config-root"[^>]*>\s*<main tabindex="-1">/);
     assert.doesNotMatch(html, /<main[^>]*class=/);
     assert.match(html, /<h1[^>]*id="title"[\s\S]*?<p[^>]*id="global-status"/);
-    assert.match(html, /<div class="pf-v6-c-tabs"[\s\S]*?<section class="pf-v6-c-tab-content"/);
+    assert.match(html, /<section class="config-panel"[\s\S]*?id="editable-grid"/);
+    assert.doesNotMatch(html, /readonly|tab-list|tab-editable|pf-v6-c-tabs|pf-v6-c-tab-content/i);
     assert.match(html, /<div class="config-actions"[\s\S]*?id="save"/);
 });
 
@@ -39,7 +41,7 @@ test("Save remains blocked after load failure and before DOM readiness", () => {
     assert.equal(canSave({ domReady: true, loaded: true, file: {} }), true);
 });
 
-test("missing optional state labels are created and cards still render", () => {
+test("all schema options render as ordered editable section cards", () => {
     class Node {
         constructor(tag) { this.tagName = tag.toUpperCase(); this.children = []; this.dataset = {}; this.classList = { toggle() {} }; }
         append(...nodes) { this.children.push(...nodes); }
@@ -47,19 +49,24 @@ test("missing optional state labels are created and cards still render", () => {
         setAttribute() {}
         addEventListener() {}
     }
-    const root = new Node("main"), editable = new Node("div"), readonly = new Node("div"); editable.id = "editable-grid"; readonly.id = "readonly-grid"; root.append(editable, readonly);
-    const document = { createElement: tag => new Node(tag), getElementById: id => [root, ...root.children, ...root.children.flatMap(node => node.children)].find(node => node.id === id) };
-    const schema = [{ section: "Session", key: "IdleTimeout", type: "integer", editable: true, help: "Idle timeout", min: 0, max: 60 }, { section: "WebService", key: "Origins", type: "text", editable: false, help: "Origins" }];
+    const root = new Node("main"), editable = new Node("div"); editable.id = "editable-grid"; root.append(editable);
+    const document = { createElement: tag => new Node(tag), getElementById: id => [root, editable].find(node => node.id === id) };
+    const schema = [{ section: "Session", key: "IdleTimeout", type: "integer", editable: true, help: "Idle timeout", min: 0, max: 60 }, { section: "WebService", key: "Origins", type: "text", editable: true, help: "Origins" }];
     renderConfiguration(schema, { values: { "Session.IdleTimeout": "15", "WebService.Origins": "https://example.test" }, presence: {} }, { document, translate: text => text, edited: new Set() });
-    assert.ok(editable.children.some(node => node.id === "editable-state"));
-    assert.ok(readonly.children.some(node => node.id === "readonly-state"));
-    assert.equal(editable.children.filter(node => node.className === "pf-v6-c-card").length, 1);
-    assert.equal(readonly.children.filter(node => node.className === "pf-v6-c-card").length, 1);
+    assert.equal(editable.children[0].className, "pf-v6-c-card");
+    assert.deepEqual(editable.children.map(node => node.children[0].children[0].textContent), ["[Session]", "[WebService]"]);
+    assert.equal(editable.children[0].children[1].children.length, 1);
+});
+
+test("the checked-in schema is entirely editable and preserves section order", () => {
+    assert.ok(STATIC_SCHEMA.length > 0);
+    assert.ok(STATIC_SCHEMA.every(item => item.editable === true));
+    assert.deepEqual([...new Set(STATIC_SCHEMA.map(item => item.section))], ["WebService", "Session", "Log", "OAuth"]);
 });
 
 test("missing essential grids produce a clear DOM compatibility error", () => {
     assert.throws(() => renderConfiguration([], { values: {}, presence: {} }, { document: { getElementById: () => null }, translate: text => text, edited: new Set() }), DomCompatibilityError);
-    assert.throws(() => renderConfiguration([], { values: {}, presence: {} }, { document: { getElementById: () => null }, translate: text => text, edited: new Set() }), /editable and read-only grids are required/);
+    assert.throws(() => renderConfiguration([], { values: {}, presence: {} }, { document: { getElementById: () => null }, translate: text => text, edited: new Set() }), /editable grid is required/);
 });
 
 test("a successful modify followed by render failure is reported as saved", async () => {

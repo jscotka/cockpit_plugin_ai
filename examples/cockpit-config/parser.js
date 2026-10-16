@@ -35,16 +35,14 @@ export function validateSchema(candidate) {
                 throw new Error(`Schema help is required for ${optionId}`);
             if ((!Array.isArray(option.examples) || !option.examples.length) && !(typeof option.placeholder === "string" && option.placeholder.trim()))
                 throw new Error(`Schema example or placeholder is required for ${optionId}`);
-            if (typeof option.editable !== "boolean")
-                throw new Error(`Schema edit policy is required for ${optionId}`);
-            if (option.editable && (!option.validation || typeof option.validation !== "object" || typeof option.validation.kind !== "string"))
+            if (option.editable !== true)
+                throw new Error(`Schema option must be editable: ${optionId}`);
+            if (!option.validation || typeof option.validation !== "object" || typeof option.validation.kind !== "string")
                 throw new Error(`Validation metadata is required for editable option: ${optionId}`);
-            if (option.editable && ["text", "structured"].includes(option.type) && (!Number.isSafeInteger(option.validation.maxLength) || option.validation.maxLength < 1 || option.validation.maxLength > 16384))
+            if (["text", "structured"].includes(option.type) && (!Number.isSafeInteger(option.validation.maxLength) || option.validation.maxLength < 1 || option.validation.maxLength > 16384))
                 throw new Error(`Validation length is required for editable option: ${optionId}`);
-            if (option.editable && typeof option.securityRationale !== "string" || option.editable && !option.securityRationale.trim())
+            if (typeof option.securityRationale !== "string" || !option.securityRationale.trim())
                 throw new Error(`Security rationale is required for editable option: ${optionId}`);
-            if (!option.editable && (typeof option.readOnlyRationale !== "string" || !option.readOnlyRationale.trim()))
-                throw new Error(`Read-only rationale is required for ${optionId}`);
             if (option.type === "integer" && (!Number.isSafeInteger(option.min) || !Number.isSafeInteger(option.max) || option.min < 0 || option.min > option.max))
                 throw new Error(`Invalid integer bounds for ${optionId}`);
             if (option.default !== undefined && ((option.type === "boolean" && typeof option.default !== "boolean") || (option.type === "integer" && (!Number.isSafeInteger(option.default) || option.default < option.min || option.default > option.max))))

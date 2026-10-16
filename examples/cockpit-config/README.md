@@ -136,8 +136,9 @@ cache behavior.
 [`schema.json`](schema.json) is the authoritative manifest for the controls
 that the page renders. It defines the sections and options, each option's
 type, integer range and default where applicable, help text, examples (or
-placeholder), and whether it is editable. It also records the rationale for
-editable and read-only options. The manifest is validated when the bundled
+placeholder), and whether it is editable. All schema-defined options in this
+package are editable, and the manifest records the rationale for that
+decision. The manifest is validated when the bundled
 JavaScript is loaded and is included in `cockpit-config.bundle.js`; the
 installed page has no runtime YAML dependency.
 
@@ -146,8 +147,9 @@ The page may render the installed `cockpit.conf(5)` man page with
 documentation drift warnings. The man page never supplies controls, option
 types, defaults, ranges, or editability. A missing, malformed, or mismatching
 man page therefore does not change the controls, and a mismatch is
-non-blocking. In particular, newly documented options are not automatically
-made read-only or editable.
+non-blocking. Ambiguous values are not dynamically added from man-page text:
+the schema remains authoritative, and newly documented options are not
+automatically added to the editor.
 
 ### Updating the schema for a Cockpit version
 
@@ -182,17 +184,20 @@ or merge multiple configuration files.
 ## Editing and validation
 
 All 21 options currently defined by [`schema.json`](schema.json) are editable.
-The schema is the complete scope of the editor: directives not listed there are
-not rendered or changed. The page still has a **Read-only** tab for the common
-UI/schema contract, but this schema currently puts no options in it. This is not
-a general-purpose editor for every `cockpit.conf(5)` directive.
+The page presents one **Configuration options** view. It renders one card per
+schema section in this order: **[WebService]**, **[Session]**, **[Log]**, and
+**[OAuth]**; options within each card follow their order in the schema. There
+is no **Read-only** tab or read-only grid. The schema is the complete scope of the
+editor: directives not listed there are not rendered or changed. This is not a
+general-purpose editor for every `cockpit.conf(5)` directive.
 
-Every editable option has an explicit validator. Boolean values accept `true`,
+Every editable option has an explicit, type-aware validator. Boolean options are
+checkboxes and accept `true`,
 `false`, `yes`, `no`, `1`, and `0`; integer fields accept whole numbers within
 the range shown by the field. Text and structured values are bounded and use
 these option-specific validation categories:
 
-* **Origins**: space-separated HTTP(S) or WebSocket origins with a scheme and
+* **Origins**: space-separated HTTP(S) origins with a scheme and
   host.
 * **Proxy headers**: HTTP header names for `ProtocolHeader` and
   `ForwardedForHeader`.
@@ -204,13 +209,15 @@ these option-specific validation categories:
 * **Fatal list**: a space-separated list containing only `criticals` and
   `warnings`.
 * **MaxStartups**: either a number up to `4294967295`, or
-  `start:rate:full`, with `rate` from 0 to 100 and `start` no greater than
+  `start:rate:full`, with `rate` from 1 to 100 and `start` no greater than
   `full`.
 
 The remaining text option (`LoginTitle`) rejects control characters and comment
 characters. Values may be empty only where the schema allows unsetting them.
 Validation happens before saving, and invalid fields are highlighted instead of
-being written.
+being written. The page displays a general security warning, and option help
+text includes a warning where changing a value can affect authentication, trust
+boundaries, availability, routing, or information disclosure.
 
 Changing origins, proxy headers, authentication, OAuth, or URL/path settings
 can lock you out, redirect authentication, expose trust boundaries, or disrupt

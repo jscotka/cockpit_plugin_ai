@@ -1,39 +1,64 @@
-// Standalone package-local PatternFly v6-compatible layer.  Shell page.scss is
-// deliberately not imported: this page has no shell/sidebar geometry.
+// Bundle the PatternFly components used by this standalone page.  Do not use
+// Cockpit's shell page.scss here: this page has no shell/sidebar geometry.
+@use "@patternfly/patternfly/sass-utilities/scss-variables" with (
+    $pf-v6-global--font-path: "../valkey/node_modules/@patternfly/patternfly/assets/fonts",
+    $fa-font-path: "../valkey/node_modules/@patternfly/patternfly/assets/fonts/webfonts",
+    $pf-v6-global--fonticon-path: "../valkey/node_modules/@patternfly/patternfly/assets/pficon",
+    $pf-v6-global--image-path: "../valkey/node_modules/@patternfly/patternfly/assets/images"
+);
+@use "@patternfly/patternfly/assets/fontawesome/variables" with ($pf-v6-global--disable-fontawesome: true);
+@use "@patternfly/patternfly/patternfly-base";
+@use "@patternfly/patternfly/components/Page/page";
+@use "@patternfly/patternfly/components/Title/title";
+@use "@patternfly/patternfly/components/Card/card";
+@use "@patternfly/patternfly/components/Button/button";
+@use "@patternfly/patternfly/components/Tabs/tabs";
+@use "@patternfly/patternfly/components/TabContent/tab-content";
+@use "@patternfly/patternfly/components/Form/form";
+@use "@patternfly/patternfly/components/FormControl/form-control";
+@use "@patternfly/patternfly/components/HelperText/helper-text";
+@use "@patternfly/patternfly/components/Check/check";
+@use "@patternfly/patternfly/components/Alert/alert";
+
+// Unique page scope for the standalone layout rules.
 .cockpit-config-root {
-    --config-bg: var(--pf-t--global--background--color--primary--default, #fff);
-    --config-text: var(--pf-t--global--text--color--regular, #151515);
-    --config-border: var(--pf-t--global--border--color--default, #d2d2d2);
-    min-height: 100vh; padding: 1.5rem; color: var(--config-text); background: var(--config-bg);
-    .pf-v6-c-page, main, .pf-v6-c-tabs, .pf-v6-c-tab-content { width: 100%; }
-    .pf-v6-c-title { margin-block: 0 .75rem; font-size: 1.5rem; font-weight: 600; }
-    .pf-m-3xl { font-size: 2rem; }
-    .pf-v6-c-tabs { margin-block: 1.5rem; border-bottom: 1px solid var(--config-border); }
-    .pf-v6-c-tabs__list { display: flex; gap: .25rem; margin: 0; padding: 0; list-style: none; }
-    .pf-v6-c-tabs__item { margin: 0; }
-    .pf-v6-c-tabs__item.pf-m-current { border-bottom: 2px solid #06c; }
-    .pf-v6-c-tabs__link { border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; padding: .75rem 1rem; color: inherit; background: transparent; cursor: pointer; }
-    .pf-v6-c-tabs__link:hover { background: color-mix(in srgb, currentColor 8%, transparent); }
-    .config-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); gap: 1rem; }
-    .pf-v6-c-card { height: 100%; border: 1px solid var(--config-border); border-radius: .25rem; background: var(--config-bg); }
-    .pf-v6-c-card__header, .pf-v6-c-card__body { padding: 1rem; }
-    .pf-v6-c-card__header { border-bottom: 1px solid var(--config-border); }
-    .pf-v6-c-card__title { font-size: 1.125rem; }
-    .pf-v6-c-form__group { margin-block: 0 1rem; }
-    .pf-v6-c-form__label { display: block; margin-bottom: .35rem; font-weight: 600; }
-    .pf-v6-c-form__helper-text { margin: 0 0 .35rem; font-size: .875rem; opacity: .8; }
-    .pf-v6-c-form-control { display: block; width: 100%; min-height: 2.25rem; box-sizing: border-box; padding: .4rem .6rem; color: inherit; border: 1px solid var(--config-border); border-radius: .25rem; background: var(--config-bg); }
-    .pf-v6-c-form-control[aria-invalid="true"] { border-color: #c9190b; }
-    .pf-v6-c-form-control:disabled, button:disabled { cursor: not-allowed; opacity: .6; }
-    .pf-v6-c-button { display: inline-block; min-height: 2.25rem; padding: .45rem 1rem; border: 1px solid var(--config-border); border-radius: .25rem; color: inherit; background: transparent; cursor: pointer; }
-    .pf-v6-c-button.pf-m-primary { color: #fff; border-color: #06c; background: #06c; }
-    .pf-v6-c-button.pf-m-secondary { background: transparent; }
-    .pf-v6-c-button:focus-visible, .pf-v6-c-form-control:focus-visible { outline: 2px solid #06c; outline-offset: 2px; }
-    .config-actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.25rem; }
+    min-height: 100vh;
+    padding: 1.5rem;
+    color: var(--pf-t--global--text--color--regular);
+    background: var(--pf-t--global--background--color--primary--default);
+
+    .pf-v6-c-page,
+    main,
+    .pf-v6-c-tabs,
+    .pf-v6-c-tab-content { width: 100%; }
+
+    .config-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+        gap: 1rem;
+    }
+
+    .config-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .5rem;
+        margin-top: 1.25rem;
+    }
+
     .config-status { min-height: 1.5rem; }
+    .config-security-warning {
+        padding: .75rem;
+        border-inline-start: .25rem solid var(--pf-t--global--color--status--warning--default, #f0ab00);
+        background: color-mix(in srgb, var(--pf-t--global--color--status--warning--default, #f0ab00) 12%, transparent);
+    }
     .readonly { overflow-wrap: anywhere; opacity: .82; }
-    :where(.pf-v6-theme-dark) & { --config-bg: var(--pf-t--global--background--color--primary--default, #151515); --config-text: var(--pf-t--global--text--color--regular, #f0f0f0); --config-border: var(--pf-t--global--border--color--default, #4d4d4d); }
-    .config-field-error { margin: .35rem 0 0; color: #c9190b; font-size: .875rem; }
-    .pf-v6-c-form-control[aria-invalid="true"]:focus-visible { outline-color: #c9190b; }
+    .config-field-error {
+        margin: .35rem 0 0;
+        color: var(--pf-t--global--color--status--danger--default, #c9190b);
+        font-size: .875rem;
+    }
 }
-@media (max-width: 600px) { .cockpit-config-root { padding: 1rem; } }
+
+@media (max-width: 600px) {
+    .cockpit-config-root { padding: 1rem; }
+}

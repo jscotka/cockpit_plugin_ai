@@ -131,15 +131,46 @@ sudo rm -r -- /usr/share/cockpit/cockpit-config
 See the [Cockpit package guide][packages] for package layout, discovery, and
 cache behavior.
 
-## Configuration discovery
+## Schema and documentation drift
 
-On load, the page discovers the schema from the installed `cockpit.conf(5)` man
-page by running `man -P cat cockpit.conf` with the C locale. Options found in
-the rendered man page but not already in the built-in schema are added as
-read-only options. If the command is unavailable or cannot be rendered, the
-page reports the discovery failure while loading and uses the conservative
-built-in schema instead; it never guesses an option type or edit safety from
-failed discovery.
+[`schema.json`](schema.json) is the authoritative manifest for the controls
+that the page renders. It defines the sections and options, each option's
+type, integer range and default where applicable, help text, examples (or
+placeholder), and whether it is editable. It also records the rationale for
+editable and read-only options. The manifest is validated when the bundled
+JavaScript is loaded and is included in `cockpit-config.bundle.js`; the
+installed page has no runtime YAML dependency.
+
+The page may render the installed `cockpit.conf(5)` man page with
+`man -P cat cockpit.conf` using the C locale, but this is only a comparison for
+documentation drift warnings. The man page never supplies controls, option
+types, defaults, ranges, or editability. A missing, malformed, or mismatching
+man page therefore does not change the controls, and a mismatch is
+non-blocking. In particular, newly documented options are not automatically
+made read-only or editable.
+
+### Updating the schema for a Cockpit version
+
+When supporting a newer Cockpit version, compare that version's
+`cockpit.conf(5)` documentation with `schema.json`, then update the checked-in
+manifest deliberately:
+
+* Add, remove, or revise entries and their help, examples, defaults, and
+  security rationale to match the supported version.
+* Use `boolean` only for the accepted boolean spellings and `integer` only with
+  explicit safe `min` and `max` bounds. Every schema option in this example is
+  editable, so add or change an option only together with an explicit validator
+  and an updated security rationale.
+* Increment `schemaRevision` and update `compatibility` when the manifest
+  contract changes. Keep the source description identifying `cockpit.conf(5)`
+  as comparison-only.
+* Run `npm run test` and `npm run build` in this directory. Install or deploy
+  the rebuilt `cockpit-config.bundle.js` together with the other generated
+  runtime assets; do not edit the bundle by hand.
+
+The tests validate malformed and unsafe manifests, and the build bundles the
+JSON manifest. On a target host, a drift warning after an update is a prompt
+to review the manifest; it is not a mechanism for inferring new UI behavior.
 
 The active file starts at `/etc/cockpit/cockpit.conf`. If `XDG_CONFIG_DIRS` is
 set, its non-empty colon-separated directories are also checked for
@@ -150,20 +181,44 @@ or merge multiple configuration files.
 
 ## Editing and validation
 
-Only options with a known safe type are editable. The built-in editable set is
-boolean options and bounded integer options. Boolean values accept `true`,
-`false`, `yes`, `no`, `1`, and `0`. Integer fields accept whole numbers within
-the range shown by the field. The page supplies option-specific help, security
-notes where applicable, and examples such as `15` or
-`https://example.com` as placeholders.
+All 21 options currently defined by [`schema.json`](schema.json) are editable.
+The schema is the complete scope of the editor: directives not listed there are
+not rendered or changed. The page still has a **Read-only** tab for the common
+UI/schema contract, but this schema currently puts no options in it. This is not
+a general-purpose editor for every `cockpit.conf(5)` directive.
 
-Free-form, security-sensitive, or otherwise ambiguous options are displayed in
-the **Read-only** tab rather than being made editable. Dynamically discovered
-options are also read-only because their type and safety are not established.
-This is intentional: the tool is not a general-purpose editor for every
-`cockpit.conf(5)` directive.
+Every editable option has an explicit validator. Boolean values accept `true`,
+`false`, `yes`, `no`, `1`, and `0`; integer fields accept whole numbers within
+the range shown by the field. Text and structured values are bounded and use
+these option-specific validation categories:
 
-Saving changes only managed options. Existing comments, unknown directives,
+* **Origins**: space-separated HTTP(S) or WebSocket origins with a scheme and
+  host.
+* **Proxy headers**: HTTP header names for `ProtocolHeader` and
+  `ForwardedForHeader`.
+* **URL and path**: HTTP(S) URLs for OAuth, URL-root paths other than the
+  reserved `/cockpit` and `/cockpit++`, relative URL paths, and absolute
+  filesystem paths.
+* **OAuth**: HTTP(S) provider URLs and parameter names using a strict token
+  grammar.
+* **Fatal list**: a space-separated list containing only `criticals` and
+  `warnings`.
+* **MaxStartups**: either a number up to `4294967295`, or
+  `start:rate:full`, with `rate` from 0 to 100 and `start` no greater than
+  `full`.
+
+The remaining text option (`LoginTitle`) rejects control characters and comment
+characters. Values may be empty only where the schema allows unsetting them.
+Validation happens before saving, and invalid fields are highlighted instead of
+being written.
+
+Changing origins, proxy headers, authentication, OAuth, or URL/path settings
+can lock you out, redirect authentication, expose trust boundaries, or disrupt
+the current session. Other settings can affect availability or disclose a
+banner file. Review the option-specific security notes before saving; changes
+are applied immediately and there is no additional confirmation dialog.
+
+Saving changes only schema-managed options. Existing comments, unknown directives,
 line endings, and inline comments are preserved; absent managed sections or
 keys are added, and a missing file is created. A duplicate managed section or
 directive blocks the save rather than choosing which value to overwrite.

@@ -1,6 +1,7 @@
 {
     "private": true,
     "type": "module",
+    "cockpitConfigRevision": "cockpit-config-v3",
     "dependencies": {
         "@patternfly/patternfly": "6.6.1",
         "esbuild": "0.28.2",
@@ -9,6 +10,6 @@
     },
     "scripts": {
         "build": "node build.mjs",
-        "test": "node --test parser.test.mjs css.test.mjs"
+        "test": "node --test parser.test.mjs css.test.mjs dom-contract.test.mjs"
     }
 }

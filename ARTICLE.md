@@ -1,92 +1,104 @@
-# From product idea to Cockpit plugin: a local AI-agent suite
+# From a system need to a Cockpit plugin: a local AI delivery team
 
-Have a Cockpit plugin idea but not a ready-made plan? Bring the idea here. This
-repository is a reusable, project-local AI-agent suite that helps developers
-turn their own requirements into a plugin in their own target repository. Tell
-it what you want to build, where the code lives, which constraints matter, and
-what a successful result should look like. The suite coordinates repository
-inspection, focused design decisions, implementation, documentation, and
-verification around that request.
+Cockpit plugins are most useful when they put a real host interface within
+reach: a service that needs managing, configuration that needs editing, metrics
+that need explaining, a system API or D-Bus object that needs a careful UI, or
+a file and controlled administrative action that should not be hidden behind a
+terminal. This repository is a project-local AI-agent suite for helping
+developers build that kind of plugin in an **existing target repository**. It
+starts from the code, dependencies, packaging, and host interfaces already
+there—not from a generic demo application.
 
-The goal is not to have one agent improvise an entire application. It is to give
-your plugin idea a disciplined development team: agents inspect the code that
-already exists, ask about decisions that could affect a real host, and divide
-the work into contributions that can be checked.
-
-The result is a project-local OpenCode suite: **tooling and guidance, not a
-plugin runtime**. It adds no dependency to the plugin being built
-([README.md](README.md)). The adjacent Cockpit checkout supplies current source
-and examples as a read-only reference, alongside the
+The suite is **tooling and guidance, not a plugin runtime**. It adds no
+dependency to the plugin being built ([README.md](README.md)). The adjacent
+Cockpit checkout is a read-only reference, alongside the
 [official Cockpit guide](https://docs.cockpit-project.org/cockpit-guide/latest/guide/).
+The implementation belongs in the target repository, where its real
+constraints and conventions can be respected.
 
-## Bring your plugin idea
+## Start with a concrete request
 
-The entry point is `/cockpit-plugin`. A useful request identifies:
+The entry point is `/cockpit-plugin`. Give it the target repository and the
+system-facing outcome you want. A useful request identifies:
 
-- the **target repository** and the page, component, or service involved;
-- the desired outcome, including loading, empty, success, and error states;
-- supported versions, dependencies, UI, packaging, or other constraints;
+- the **target repository** and the page, component, service, or host interface;
+- the desired behavior, including loading, empty, success, and error states;
+- supported versions, dependencies, UI, packaging, and other constraints;
 - privilege, persistence, secret-handling, destructive-action, and ownership
   expectations; and
 - the checks and acceptance criteria that define “done”.
 
-For example, a request might ask for a service-status page in
-`/path/to/my-plugin`, require compatibility with an existing UI, prohibit new
-privileges, and ask for focused tests. The important thing is not a magic
-prompt format. It is giving the agents enough context to work on **your**
-plugin rather than silently inventing a neighboring one.
+For example, ask for a service-status page in `/path/to/my-plugin`, a metrics
+view backed by an existing command, or a configuration editor that must
+preserve unmanaged file content. Say whether administrative access is allowed,
+which versions matter, and what must remain unchanged. That context keeps the
+agents focused on **your** repository and its host instead of silently
+inventing a neighboring product.
 
-The command then follows a simple sequence:
+The workflow is deliberately practical:
 
-1. inspect the repository and its existing patterns;
-2. clarify important product, privilege, and security questions;
-3. ask specialists for focused decisions;
-4. implement in the target repository;
-5. document, test, and verify the result.
+1. inspect the target repository and its existing patterns;
+2. clarify decisions that could affect security, privilege, persistence, or
+   data ownership;
+3. make a plan with acceptance criteria and distinct file ownership;
+4. implement the approved work in the target repository; and
+5. document the result and report the evidence available.
 
-The workflow is described in the [command definition](.opencode/command/cockpit-plugin.md)
+The sequence is described in the [command definition](.opencode/command/cockpit-plugin.md)
 and the [architect guide](.opencode/agent/cockpit-plugin-architect.md). Discovery
-matters because Cockpit plugins are part of a larger system. Dependencies,
-transport, packaging, UI conventions, and tests in your repository are usually
-more informative than a generic starter layout. The adjacent Cockpit checkout
-and the [official Cockpit guide](https://docs.cockpit-project.org/cockpit-guide/latest/guide/)
-provide maintained references, while implementation stays in the target
-repository.
+matters: local dependencies, transport choices, packaging, UI conventions, and
+tests are usually more informative than a generic starter layout. For API
+decisions, the suite points agents to maintained Cockpit documentation for
+[D-Bus](https://docs.cockpit-project.org/cockpit-guide/latest/guide/cockpit-dbus.html),
+[spawn](https://docs.cockpit-project.org/cockpit-guide/latest/guide/cockpit-spawn.html),
+and [channels](https://docs.cockpit-project.org/cockpit-guide/latest/guide/cockpit-channels.html).
 
 That is not bureaucracy for its own sake. **A browser page is not automatically
 privileged**, and a save button can have consequences on a real host. Asking one
-good question early is often faster than repairing a confident assumption later.
+good question early is often faster than repairing a confident assumption
+later.
 
-## Agent cooperation
+## A small team, not a single improviser
 
-The architect shares the approved context with specialists who have clear,
-non-overlapping responsibilities. The suite currently separates work such as:
+The architect is the coordinator. First, it reads the repository and turns the
+request into requirements, risks, open questions, and acceptance criteria. Once
+the important decisions are clear, it gives the same approved context to a
+small set of specialists. Their work is deliberately complementary:
 
-- UI structure, accessibility, responsive behavior, and themes;
-- backend transport, lifecycle, privilege, validation, and errors;
-- implementation, dependencies, packaging, and build output;
-- localization, documentation, and integration checks; and
-- feedback review based on an exact symptom and the assets actually loaded.
+- **UI designer:** turns host state into accessible, responsive PatternFly
+  structure with clear loading, empty, error, and theme states.
+- **Backend advisor:** checks transport, lifecycle, privilege boundaries,
+  validation, input safety, and failure behavior for commands, files, or APIs.
+- **Plugin builder:** fits the implementation, dependencies, build output, and
+  packaging into the target project's architecture.
+- **Documentation and localization writers:** make the shipped behavior,
+  installation, and user-facing text match the implementation and Cockpit
+  conventions.
+- **Integration tester and feedback reviewer:** examine the focused checks and
+  the exact browser, service, or host evidence instead of guessing from a
+  symptom.
 
-This arrangement lets agents work in parallel without turning the repository
-into a merge-conflict science experiment. More importantly, it gives each
-recommendation a natural owner. Patterns in the local
+The interesting part is the handoff. The backend advisor can say, “this action
+requires administrative access, accepts only these inputs, and must distinguish
+a failed command from an empty result.” The UI designer can turn that boundary
+into a safe form and an honest status. The builder then connects both decisions
+to the repository's actual transport and package layout. Documentation records
+what really shipped, while the reviewer follows the loaded assets or reported
+host behavior when something goes wrong.
+
+The architect reconciles those contributions, keeps ownership disjoint, and
+returns a coherent change rather than a pile of disconnected suggestions. This
+arrangement lets agents work in parallel without turning the repository into a
+merge-conflict science experiment. Patterns in the local
 [catalog](.opencode/references/patterns.md) help teams start consistently, but
 current source, tests, and official documentation remain the authority.
 
-The handoff between agents is therefore part of the design. A useful result
-says what was implemented, what was checked, and what still depends on a
-particular host or browser. That distinction keeps a unit test from being
-mistaken for proof of privileged or end-to-end integration.
+## Concrete outcomes, deliberately scoped
 
-## What the suite can produce
+The examples show the range of system-facing work without pretending that one
+example defines the suite.
 
-The suite is designed for many plugin ideas, not for reproducing the examples
-checked into this repository. Those examples are useful illustrations of the
-range of work it can coordinate: a focused service-management page and a
-privileged configuration editor.
-
-### Valkey: a deliberately scoped management page
+### Valkey: service, metrics, and controlled operations
 
 [`examples/valkey`](examples/valkey) is an MVP for Fedora 44 and Cockpit test
 images, not a universal Valkey installer. Its manifest exposes Overview,
@@ -95,83 +107,53 @@ Configuration, and Message debugging tabs. The page can install the exact
 directives in `/etc/valkey/valkey.conf`, collect `INFO` metrics, operate on
 database 0, and maintain a local `messages` list. It distinguishes service
 status from internal Valkey status and treats an empty database as zero keys
-without hiding real command failures ([example README](examples/valkey/README.md)).
+without hiding real command failures
+([example README](examples/valkey/README.md)).
 
-The example is equally clear about its limits: it does not provide distribution
-detection, password support, clustering, TLS, or backup and restore. Its UI
-build requires Node.js 22+ and npm 10+. The generated stylesheet bundles the
-PatternFly v6 components it uses rather than assuming that `cockpit.js` injects
-CSS; **the API and transport library does not provide a runtime global stylesheet**.
+Its limits are part of the result: it does not provide distribution detection,
+password support, clustering, TLS, or backup and restore. The UI build requires
+Node.js 22+ and npm 10+, and its generated stylesheet bundles the PatternFly v6
+components it uses rather than assuming that `cockpit.js` injects CSS; **the API
+and transport library does not provide a runtime global stylesheet**.
 
-### Cockpit configuration: schema as an executable contract
+### Cockpit configuration: schema as a contract
 
 [`examples/cockpit-config`](examples/cockpit-config) edits the active
-`cockpit.conf` while preserving comments and unmanaged directives. It uses
-conflict-aware `cockpit.file().modify()`, requires administrative access, and
-reports a successful file write separately from a failed `cockpit.service`
-reload. Its checked-in [`schema.json`](examples/cockpit-config/schema.json) is
-the source of truth for the editable options: types, ranges, defaults, help,
-examples, and editability. The installed `cockpit.conf(5)` page is only a
-non-blocking comparison for documentation drift; it does not invent controls.
+`cockpit.conf` while preserving comments and unmanaged directives. It requires
+Cockpit administrative access, uses conflict-aware `cockpit.file().modify()`,
+and reports a successful file write separately from a failed
+`cockpit.service` reload. Its checked-in
+[`schema.json`](examples/cockpit-config/schema.json) defines editable options,
+types, ranges, defaults, help, examples, and editability. The installed
+`cockpit.conf(5)` page is only a non-blocking comparison for documentation drift;
+it does not invent controls.
 
-This makes a difficult configuration problem easier to reason about. Validators
-cover booleans, bounded integers, URLs, paths, origins, headers, OAuth values,
-lists, and other structured settings. Duplicate entries and concurrent changes
-block an unsafe save. The package also documents generated assets and discovery
-with `cockpit-bridge --packages` ([example README](examples/cockpit-config/README.md)).
+Together, these examples point to a method: expose a real interface, make
+privilege and failure boundaries visible, and keep the scope honest. The same
+method can guide a plugin for another service, a system API, D-Bus, a managed
+file, or a carefully bounded administrative operation when the target
+repository and host behavior support it.
 
-## Lessons that travel with the workflow
+## Evidence, then the next handoff
 
-The examples and the suite's guidance surface lessons worth carrying into your
-own plugin work:
-
-- **Assets are part of the feature.** HTML, JavaScript, CSS, and theme files
-  must be built and deployed as one revision. A stale browser cache or missing
-  generated stylesheet can resemble a source bug.
-- **Host APIs vary.** Optional Valkey fields and empty database sections should
-  not turn a reachable service into an error. Configuration parsing, schema
-  behavior, and reload results need explicit handling.
-- **UI failures need useful boundaries.** A successful write followed by a
-  failed refresh should still be reported as a successful write. Missing
-  required elements, asset mismatches, and schema drift should remain visible.
-- **Packaging and documentation count as implementation.** A finished plugin
-  should explain prerequisites, development and system installation, package
-  discovery, and removal, while distinguishing an example copy from an RPM or
-  distribution package.
-
-For API decisions, the suite points agents to current Cockpit documentation for
-[D-Bus](https://docs.cockpit-project.org/cockpit-guide/latest/guide/cockpit-dbus.html),
-[spawn](https://docs.cockpit-project.org/cockpit-guide/latest/guide/cockpit-spawn.html),
-and [channels](https://docs.cockpit-project.org/cockpit-guide/latest/guide/cockpit-channels.html).
-
-## From first plan to useful handoff
-
-After the first request, the suite can continue with feedback: an exact browser
-error, service output, reproduction steps, or a changed acceptance criterion.
-Agents can then inspect the current diff and the assets actually loaded instead
-of guessing from a symptom. Browser and privileged integration remain
-environment-dependent, so those results are reported separately and honestly.
-
-The next improvements should deepen this evidence-based workflow rather than
-broaden it: add focused asset and DOM checks where a package has a build,
-inspect generated selectors, test narrow layouts, and expand checks across
-supported API versions.
-
-The `/improve-cockpit-agents` command provides a feedback loop. After a
-meaningful task, maintainers can provide the final diff and validation evidence
-so a proven lesson becomes a better suite rule without changing plugin source.
+Verification is intentionally concise: the suite follows the target project's
+documented checks and reports what actually ran, what was skipped, and what
+remains environment-dependent. Tests can support a claim, but they do not by
+themselves prove privileged or browser end-to-end integration. A later feedback
+request should include the exact error, reproduction steps, service output, or
+loaded asset evidence so agents can inspect the current diff instead of
+guessing. The `/improve-cockpit-agents` command can turn a proven lesson into a
+better suite rule without changing plugin source.
 
 ## Conclusion
 
-AI does not remove the hard parts of Cockpit development. It can, however, make
-those parts easier to see and divide among people and agents. Bring a plugin
-idea, its target repository, its constraints, and the outcome you want; the
-suite turns that input into a sequence of inspected decisions, focused
-contributions, a coherent package, and evidence about what really works.
+AI does not remove the hard parts of Cockpit development. It can make those
+parts easier to see, assign, and hand across a focused team. Bring a concrete
+system need, its target repository, its host constraints, and the outcome you
+want. The architect and specialists can then turn that input into inspected
+decisions, bounded implementation, a coherent package, and an honest account of
+what works.
 
-The Valkey and Cockpit configuration examples demonstrate that approach: one
-stays deliberately scoped, while the other treats configuration metadata as an
-executable contract. They are starting points and evidence, not the suite's
+Valkey and Cockpit configuration are illustrative outcomes, not the suite's
 boundaries. With clear limits and continued maintainer feedback, cooperating
-agents can make your plugin development faster **without making it less
-careful**.
+agents can make plugin development faster **without making it less careful**.

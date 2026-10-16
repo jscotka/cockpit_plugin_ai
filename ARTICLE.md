@@ -1,4 +1,4 @@
-# From a system need to a Cockpit plugin: a local AI delivery team
+# From user need to Cockpit plugin: building together with AI agents
 
 Cockpit plugins are most useful when they put a real host interface within
 reach: a service that needs managing, configuration that needs editing, metrics

@@ -20,4 +20,6 @@ example-package installation from RPM/distribution installation, and validate
 all commands and paths against the package and current Cockpit conventions;
 never invent paths.
 
+Document that all required generated HTML/JS/CSS/theme assets must be deployed as one revision, how Cockpit/browser caches are refreshed or reloaded, and how example packages are removed or rolled back. Verify package discovery after installation and distinguish stale deployed-package/cache problems from source defects.
+
 Return changed files, claims requiring confirmation, and a concise check that instructions match implementation. Do not report tests or builds that you did not run.

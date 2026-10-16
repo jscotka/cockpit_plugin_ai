@@ -11,6 +11,17 @@ The page is exposed as **Cockpit configuration** in Cockpit's Tools menu. It
 requires Cockpit administrative access: both the configuration file access and
 the systemd D-Bus call request `superuser: "require"`.
 
+## Prerequisites
+
+The target host must have Cockpit installed, including its JavaScript API
+package (`base1`). The user opening the page must be allowed to obtain
+Cockpit administrative access. This example requires administrator
+authorization to read and write the active configuration file and to reload
+`cockpit.service`; saving a change can therefore interrupt the current
+Cockpit session.
+
+For development, building the package requires Node.js 22+ and npm 10+.
+
 ## Build and test
 
 The package requires Node.js 22+ and npm 10+. From this directory:
@@ -27,11 +38,98 @@ available (`../../../node_modules`); it does not require `node_modules` to be
 copied into this package. It emits the package-local `cockpit-config.css`,
 `cockpit-config-theme.js`, and `cockpit-config.bundle.js` runtime artifacts.
 
-Install for a development session by linking this directory below
-`$HOME/.local/share/cockpit/cockpit-config`, or copy it to the host's
-`/usr/share/cockpit/cockpit-config`. The package manifest exposes the tool in
-Cockpit's Tools menu. See the [Cockpit package guide][packages] for package
-layout and discovery rules.
+## Install into Cockpit
+
+Cockpit packages are directories containing a `manifest.json`. This example's
+manifest registers the **Cockpit configuration** tool and points it at
+`cockpit-config.html`; that page loads the adjacent JavaScript and CSS assets.
+These instructions install an example package, not an RPM or other
+distribution package.
+
+### Developer or current-user install
+
+From the repository root, run these commands as the user who will log in to
+Cockpit:
+
+```sh
+cd examples/cockpit-config
+mkdir -p -- "$HOME/.local/share/cockpit"
+ln -s -- "$PWD" "$HOME/.local/share/cockpit/cockpit-config"
+```
+
+The symlink keeps Cockpit pointed at the checkout. To install a copy instead,
+use the following in place of `ln`:
+
+```sh
+mkdir -p -- "$HOME/.local/share/cockpit/cockpit-config"
+cp -a -- . "$HOME/.local/share/cockpit/cockpit-config/"
+```
+
+This applies to that user's Cockpit session. The package is discovered from
+the user's XDG data directory before system package directories.
+
+### System-wide install
+
+To make the example available to all users, an administrator can copy the
+complete directory into the host's Cockpit package data directory. The usual
+directory is `/usr/share/cockpit`; use the installation's actual data
+directory if it differs:
+
+```sh
+cd examples/cockpit-config
+sudo install -d -m 0755 -- /usr/share/cockpit/cockpit-config
+sudo cp -a -- . /usr/share/cockpit/cockpit-config/
+```
+
+Review the source and ownership before a system-wide install. Do not use this
+as a substitute for a reviewed RPM or distribution package, and do not modify
+a system-installed copy while Cockpit is running because system packages may
+be cached.
+
+### Verify discovery and open the tool
+
+On the target host, run:
+
+```sh
+cockpit-bridge --packages
+```
+
+Confirm that the `cockpit-config` package appears for the user whose session
+you will use. Reload the Cockpit page if it does not appear immediately; for
+a system-wide install, logging out and in again may also be necessary. Then
+open **Cockpit configuration** under **Tools**.
+
+The installed directory must contain the generated runtime assets
+`cockpit-config.css`, `cockpit-config-theme.js`, and
+`cockpit-config.bundle.js`, in addition to `manifest.json` and
+`cockpit-config.html`. If they are absent, run `npm run build` from this
+directory before installing or copy the rebuilt package. The build emits
+these package-local files; `node_modules` does not need to be copied.
+
+### Uninstall or undo
+
+To remove a developer symlink, remove only the link and keep the checkout:
+
+```sh
+rm -- "$HOME/.local/share/cockpit/cockpit-config"
+```
+
+For a developer copy, remove the copied directory instead:
+
+```sh
+rm -r -- "$HOME/.local/share/cockpit/cockpit-config"
+```
+
+To undo the system-wide copy, first verify that the dedicated directory is
+not owned by a distribution package, then remove it with administrator
+privileges:
+
+```sh
+sudo rm -r -- /usr/share/cockpit/cockpit-config
+```
+
+See the [Cockpit package guide][packages] for package layout, discovery, and
+cache behavior.
 
 ## Configuration discovery
 

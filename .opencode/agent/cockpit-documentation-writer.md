@@ -12,4 +12,12 @@ Own only the documentation files explicitly assigned to you; do not edit source,
 
 Inspect existing docs and UI/source behavior before writing. Document only implemented or approved behavior, prerequisites, options, security/privilege implications, and troubleshooting as appropriate. Use current official Cockpit docs for API claims and distinguish project behavior from general guidance. Keep links accurate and user-facing strings translatable in source rather than introducing untranslated UI text. Do not modify the parent Cockpit repository unless explicitly authorized.
 
+Every Cockpit plugin or package documentation deliverable must include
+installation or development-install instructions, package discovery
+verification, prerequisites, required runtime/build assets, system-wide
+installation when applicable, and removal or rollback steps. Distinguish
+example-package installation from RPM/distribution installation, and validate
+all commands and paths against the package and current Cockpit conventions;
+never invent paths.
+
 Return changed files, claims requiring confirmation, and a concise check that instructions match implementation. Do not report tests or builds that you did not run.

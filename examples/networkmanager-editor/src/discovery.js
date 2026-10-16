@@ -17,7 +17,7 @@ async function deviceInfo(call, path) {
     ]);
     let accessPoints = [];
     if (unwrap(deviceType) === 2) {
-        try { accessPoints = (await property(call, path, "org.freedesktop.NetworkManager.Device.Wireless", "AccessPoints")) || []; } catch (error) { /* optional on older NetworkManager versions */ }
+        try { accessPoints = unwrap(await property(call, path, "org.freedesktop.NetworkManager.Device.Wireless", "AccessPoints")) || []; } catch (error) { /* optional on older NetworkManager versions */ }
     }
     return { path, properties: { DeviceType: deviceType, ActiveConnection: activeConnection, Interface: iface }, accessPoints };
 }

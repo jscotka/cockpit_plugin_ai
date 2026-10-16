@@ -58,6 +58,27 @@ test("NetworkManager discovery uses supported manager and settings methods", asy
     assert(!calls.some(call => call.method === "GetManagedObjects"));
 });
 
+test("NetworkManager discovery unwraps a Wi-Fi AccessPoints property variant", async () => {
+    const call = async (path, iface, method, args) => {
+        if (method === "GetAllDevices") return [["/wifi"]];
+        if (method === "ListConnections") return [[]];
+        if (method !== "Get") throw new Error(`unexpected ${method}`);
+        const properties = {
+            DeviceType: { t: "u", v: 2 },
+            ActiveConnection: { t: "o", v: "/" },
+            Interface: { t: "s", v: "wlan0" },
+            AccessPoints: { t: "ao", v: ["/ap"] },
+        };
+        if (path === "/wifi") return [properties[args[1]]];
+        if (path === "/ap") return [{ Ssid: { t: "s", v: "Example Wi-Fi" }, Strength: { t: "y", v: 80 }, Flags: { t: "u", v: 0 } }[args[1]]];
+        throw new Error(`unexpected property path ${path}`);
+    };
+
+    const result = await discoverNetwork(call);
+    assert.deepEqual(result.devices[0].accessPoints, ["/ap"]);
+    assert.deepEqual(result.aps, [{ path: "/ap", properties: { Ssid: "Example Wi-Fi", Strength: 80, Flags: 0 } }]);
+});
+
 test("checkpoint uses manager CheckpointCreate/Rollback/Destroy and waits for confirmation", async () => {
     const calls = [], client = { call: async (path, iface, method, args, options) => { calls.push({ path, iface, method, args, options }); if (method === "CheckpointCreate") return ["/checkpoint/1"]; return []; } };
     await withCheckpoint(client, NM_PATH, async () => {}, { devices: ["/device"], confirm: async () => true });

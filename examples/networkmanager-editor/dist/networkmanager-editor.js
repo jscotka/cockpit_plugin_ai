@@ -211,7 +211,7 @@
     let accessPoints = [];
     if (unwrap(deviceType) === 2) {
       try {
-        accessPoints = await property(call2, path, "org.freedesktop.NetworkManager.Device.Wireless", "AccessPoints") || [];
+        accessPoints = unwrap(await property(call2, path, "org.freedesktop.NetworkManager.Device.Wireless", "AccessPoints")) || [];
       } catch (error) {
       }
     }

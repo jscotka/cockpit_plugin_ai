@@ -1,0 +1,160 @@
+/* cockpit-config.scss */
+.cockpit-config-root {
+  --config-bg: var(--pf-t--global--background--color--primary--default, #fff);
+  --config-text: var(--pf-t--global--text--color--regular, #151515);
+  --config-border: var(--pf-t--global--border--color--default, #d2d2d2);
+  min-height: 100vh;
+  padding: 1.5rem;
+  color: var(--config-text);
+  background: var(--config-bg);
+}
+.cockpit-config-root .pf-v6-c-page,
+.cockpit-config-root main,
+.cockpit-config-root .pf-v6-c-tabs,
+.cockpit-config-root .pf-v6-c-tab-content {
+  width: 100%;
+}
+.cockpit-config-root .pf-v6-c-title {
+  margin-block: 0 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+.cockpit-config-root .pf-m-3xl {
+  font-size: 2rem;
+}
+.cockpit-config-root .pf-v6-c-tabs {
+  margin-block: 1.5rem;
+  border-bottom: 1px solid var(--config-border);
+}
+.cockpit-config-root .pf-v6-c-tabs__list {
+  display: flex;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cockpit-config-root .pf-v6-c-tabs__item {
+  margin: 0;
+}
+.cockpit-config-root .pf-v6-c-tabs__item.pf-m-current {
+  border-bottom: 2px solid #06c;
+}
+.cockpit-config-root .pf-v6-c-tabs__link {
+  border: 0;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  padding: 0.75rem 1rem;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+.cockpit-config-root .pf-v6-c-tabs__link:hover {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+.cockpit-config-root .config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+  gap: 1rem;
+}
+.cockpit-config-root .pf-v6-c-card {
+  height: 100%;
+  border: 1px solid var(--config-border);
+  border-radius: 0.25rem;
+  background: var(--config-bg);
+}
+.cockpit-config-root .pf-v6-c-card__header,
+.cockpit-config-root .pf-v6-c-card__body {
+  padding: 1rem;
+}
+.cockpit-config-root .pf-v6-c-card__header {
+  border-bottom: 1px solid var(--config-border);
+}
+.cockpit-config-root .pf-v6-c-card__title {
+  font-size: 1.125rem;
+}
+.cockpit-config-root .pf-v6-c-form__group {
+  margin-block: 0 1rem;
+}
+.cockpit-config-root .pf-v6-c-form__label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-weight: 600;
+}
+.cockpit-config-root .pf-v6-c-form__helper-text {
+  margin: 0 0 0.35rem;
+  font-size: 0.875rem;
+  opacity: 0.8;
+}
+.cockpit-config-root .pf-v6-c-form-control {
+  display: block;
+  width: 100%;
+  min-height: 2.25rem;
+  box-sizing: border-box;
+  padding: 0.4rem 0.6rem;
+  color: inherit;
+  border: 1px solid var(--config-border);
+  border-radius: 0.25rem;
+  background: var(--config-bg);
+}
+.cockpit-config-root .pf-v6-c-form-control[aria-invalid=true] {
+  border-color: #c9190b;
+}
+.cockpit-config-root .pf-v6-c-form-control:disabled,
+.cockpit-config-root button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.cockpit-config-root .pf-v6-c-button {
+  display: inline-block;
+  min-height: 2.25rem;
+  padding: 0.45rem 1rem;
+  border: 1px solid var(--config-border);
+  border-radius: 0.25rem;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+.cockpit-config-root .pf-v6-c-button.pf-m-primary {
+  color: #fff;
+  border-color: #06c;
+  background: #06c;
+}
+.cockpit-config-root .pf-v6-c-button.pf-m-secondary {
+  background: transparent;
+}
+.cockpit-config-root .pf-v6-c-button:focus-visible,
+.cockpit-config-root .pf-v6-c-form-control:focus-visible {
+  outline: 2px solid #06c;
+  outline-offset: 2px;
+}
+.cockpit-config-root .config-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+.cockpit-config-root .config-status {
+  min-height: 1.5rem;
+}
+.cockpit-config-root .readonly {
+  overflow-wrap: anywhere;
+  opacity: 0.82;
+}
+:where(.pf-v6-theme-dark) .cockpit-config-root {
+  --config-bg: var(--pf-t--global--background--color--primary--default, #151515);
+  --config-text: var(--pf-t--global--text--color--regular, #f0f0f0);
+  --config-border: var(--pf-t--global--border--color--default, #4d4d4d);
+}
+.cockpit-config-root .config-field-error {
+  margin: 0.35rem 0 0;
+  color: #c9190b;
+  font-size: 0.875rem;
+}
+.cockpit-config-root .pf-v6-c-form-control[aria-invalid=true]:focus-visible {
+  outline-color: #c9190b;
+}
+@media (max-width: 600px) {
+  .cockpit-config-root {
+    padding: 1rem;
+  }
+}

@@ -1,0 +1,1 @@
+import "cockpit-dark-theme";

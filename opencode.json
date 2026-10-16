@@ -7,5 +7,12 @@
       "path": "..",
       "description": "The adjacent Cockpit source repository: inspect it for authoritative in-tree APIs, conventions, examples, tests, and packaging patterns."
     }
+  },
+  "mcp": {
+    "patternfly-mcp": {
+      "type": "local",
+      "command": ["npx", "-y", "@patternfly/patternfly-mcp@latest"],
+      "enabled": true
+    }
   }
 }

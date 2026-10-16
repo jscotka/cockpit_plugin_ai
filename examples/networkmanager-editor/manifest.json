@@ -1,0 +1,9 @@
+{
+    "version": 0,
+    "tools": {
+        "networkmanager-editor": {
+            "label": "NetworkManager editor (PoC)",
+            "path": "networkmanager-editor.html"
+        }
+    }
+}

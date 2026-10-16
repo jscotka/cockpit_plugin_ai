@@ -1,0 +1,16 @@
+.nm-editor-root { min-height: 100vh; color: var(--pf-t--global--text--color--regular); background: var(--pf-t--global--background--color--primary--default); }
+.nm-editor-root main { width: 100%; max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+.nm-editor-root header { margin-bottom: 1rem; }
+.nm-editor-root .selection-grid { display: grid; grid-template-columns: minmax(10rem, 1fr) minmax(12rem, 2fr); gap: 1rem; align-items: start; }
+.nm-editor-root .actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
+.nm-editor-root .status { margin: 1rem 0; min-height: 1.5rem; }
+.nm-editor-root .field { display: grid; gap: .35rem; margin: 1rem 0; max-width: 48rem; }
+.nm-editor-root input, .nm-editor-root textarea, .nm-editor-root select { max-width: 48rem; }
+.nm-editor-root textarea { min-height: 5rem; }
+.nm-editor-root .helper { color: var(--pf-t--global--text--color--subtle); }
+.nm-editor-root .error { color: var(--pf-t--global--color--status--danger--default); min-height: 1.2rem; }
+.nm-editor-root input:focus, .nm-editor-root textarea:focus, .nm-editor-root select:focus, .nm-editor-root button:focus-visible { outline: 2px solid var(--pf-t--global--color--brand--default); outline-offset: 2px; }
+.nm-editor-root [aria-invalid="true"] { border-color: var(--pf-t--global--color--status--danger--default); }
+.nm-editor-root .pf-v6-c-card { margin: 1rem 0; }
+.nm-editor-root .tab-panel { padding: 1rem 0; }
+@media (max-width: 600px) { .nm-editor-root main { padding: 1rem; } .nm-editor-root .selection-grid { grid-template-columns: 1fr; gap: .35rem; } .nm-editor-root .actions .pf-v6-c-button { flex: 1 1 9rem; } }

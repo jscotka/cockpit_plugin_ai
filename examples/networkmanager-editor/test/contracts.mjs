@@ -1,0 +1,10 @@
+import fs from "node:fs";
+import assert from "node:assert/strict";
+const html = fs.readFileSync(new URL("../networkmanager-editor.html", import.meta.url), "utf8");
+const js = fs.existsSync(new URL("../dist/networkmanager-editor.js", import.meta.url)) ? fs.readFileSync(new URL("../dist/networkmanager-editor.js", import.meta.url), "utf8") : "";
+const css = fs.existsSync(new URL("../dist/networkmanager-editor.css", import.meta.url)) ? fs.readFileSync(new URL("../dist/networkmanager-editor.css", import.meta.url), "utf8") : "";
+assert.match(html, /cockpit\.js/); assert.match(html, /dist\/networkmanager-editor\.(?:js|css)/); assert.match(html, /id="nm-editor-root"/); assert.match(html, /id="global-status"/); assert.match(html, /role="tablist"/); assert.match(html, /nm-asset-revision" content="nm-editor-2"/);
+if (js) { assert.match(js, /GetAllDevices/); assert.match(js, /ListConnections/); assert.doesNotMatch(js, /GetManagedObjects/); assert.match(js, /nm-editor-2/); } else console.warn("Generated JS is absent; run npm run build before packaging.");
+if (css) for (const selector of ["pf-v6-c-card", "pf-v6-c-button", "pf-v6-c-tabs", "pf-v6-c-form-control"]) assert.match(css, new RegExp(selector.replaceAll("-", "\\-")));
+else console.warn("Generated CSS is absent; run npm run build before packaging.");
+console.log("asset and DOM contract checks passed");

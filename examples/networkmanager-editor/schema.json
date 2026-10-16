@@ -1,0 +1,18 @@
+{
+    "version": 1,
+    "scope": "PoC: common Ethernet and Wi-Fi profiles only; unsupported settings are preserved but not inferred or edited.",
+    "fields": {
+        "connection.id": {"type":"string","required":true,"help":"A local profile name."},
+        "connection.autoconnect": {"type":"boolean","help":"Whether NetworkManager may activate this profile automatically."},
+        "connection.interface-name": {"type":"string","unset":"delete"},
+        "802-3-ethernet.mtu": {"type":"uint32","min":576,"max":65536,"unset":"delete"},
+        "802-3-ethernet.mac-address": {"type":"byte-array","format":"mac","unset":"delete"},
+        "802-11-wireless.ssid": {"type":"byte-array","maxBytes":32},
+        "802-11-wireless.mode": {"type":"string","allowed":["infrastructure","ap"]},
+        "802-11-wireless.hidden": {"type":"boolean"},
+        "802-11-wireless-security.psk": {"type":"secret","blank":"preserve","fetch":false},
+        "ipv4.method": {"type":"string","allowed":["auto","manual","disabled","link-local"]},
+        "ipv6.method": {"type":"string","allowed":["auto","manual","disabled","link-local","ignore"]}
+    },
+    "disabled": ["802.1X/certificates", "wireguard", "bond/bridge/team/vlan", "advanced routes and policy routing", "speed/duplex/WoL writes when absent from the loaded profile"]
+}

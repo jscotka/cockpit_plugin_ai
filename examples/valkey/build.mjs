@@ -7,6 +7,10 @@ await Promise.all([
         outfile: "valkey.css",
         bundle: true,
         minify: false,
+        loader: {
+            ".svg": "dataurl",
+            ".woff2": "dataurl",
+        },
         plugins: [sassPlugin({
             quietDeps: true,
         })],

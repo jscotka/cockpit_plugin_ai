@@ -23,16 +23,18 @@ npm run build
 ```
 
 The example has a small local dependency set because the adjacent Cockpit
-checkout may have stale dependencies. Install it from this directory with:
+checkout may have stale dependencies. For a clean checkout, install it from
+this directory with:
 
 ```sh
-npm install
+npm ci
 ```
 
-For a clean checkout with `package-lock.json`, prefer `npm ci`. The build uses
-the local pinned esbuild, esbuild-sass-plugin, and Sass packages. The stylesheet
-is standalone: it uses PatternFly-looking class names but does not load Cockpit
-shell layout rules, shared `page.scss`, `ct-card`, or PatternFly component Sass.
+The build uses the local pinned esbuild, esbuild-sass-plugin, Sass, and
+PatternFly packages.
+The stylesheet is standalone: it bundles the PatternFly v6 base and components
+used by the page, but does not load Cockpit shell layout rules, shared
+`page.scss`, or `ct-card`.
 Do not run an example-local install in the parent Cockpit repository.
 
 The build generates `valkey.css` from `valkey.scss`. `valkey.css` is required

@@ -56,7 +56,7 @@
             });
         });
         function activateTab(id) {
-            tabs.forEach(([tabId, panel]) => { const selected = tabId === id; $(tabId).setAttribute("aria-selected", selected ? "true" : "false"); $(tabId).tabIndex = selected ? 0 : -1; $(panel).hidden = !selected; });
+            tabs.forEach(([tabId, panel]) => { const selected = tabId === id, tab = $(tabId); tab.setAttribute("aria-selected", selected ? "true" : "false"); tab.tabIndex = selected ? 0 : -1; tab.parentElement.classList.toggle("pf-m-current", selected); $(panel).hidden = !selected; });
             tabList.parentElement.dataset.activeTab = id;
         }
     }

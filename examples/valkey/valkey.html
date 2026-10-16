@@ -7,23 +7,24 @@
     <link rel="stylesheet" href="valkey.css">
     <script src="../base1/cockpit.js"></script>
 </head>
-<body class="pf-v6-m-tabular-nums" hidden>
-    <div class="pf-v6-c-page valkey-page" id="page">
-    <main id="main" class="pf-v6-c-page__main" tabindex="-1">
-        <section class="pf-v6-c-page__main-section pf-m-light">
+<body hidden>
+    <div id="page">
+    <main id="main" tabindex="-1">
+        <section>
             <h1 id="page-title" class="pf-v6-c-title pf-m-3xl"></h1>
-            <p id="page-description" class="pf-v6-c-content"></p>
+            <p id="page-description"></p>
         </section>
         <p id="page-status" role="status" aria-live="polite"></p>
 
         <div class="tabs pf-v6-c-tabs" data-active-tab="tab-overview">
             <ul id="tab-list" class="tab-list pf-v6-c-tabs__list" role="tablist" aria-label="">
-                <li class="pf-v6-c-tabs__item" role="presentation"><button id="tab-overview" class="tab pf-v6-c-tabs__link" type="button" role="tab" aria-controls="panel-overview" aria-selected="true" tabindex="0"></button></li>
+                <li class="pf-v6-c-tabs__item pf-m-current" role="presentation"><button id="tab-overview" class="tab pf-v6-c-tabs__link" type="button" role="tab" aria-controls="panel-overview" aria-selected="true" tabindex="0"></button></li>
                 <li class="pf-v6-c-tabs__item" role="presentation"><button id="tab-configuration" class="tab pf-v6-c-tabs__link" type="button" role="tab" aria-controls="panel-configuration" aria-selected="false" tabindex="-1"></button></li>
                 <li class="pf-v6-c-tabs__item" role="presentation"><button id="tab-messages" class="tab pf-v6-c-tabs__link" type="button" role="tab" aria-controls="panel-messages" aria-selected="false" tabindex="-1"></button></li>
             </ul>
+        </div>
 
-            <section id="panel-overview" class="tab-panel pf-v6-c-page__main-section" role="tabpanel" aria-labelledby="tab-overview">
+        <section id="panel-overview" class="tab-panel pf-v6-c-tab-content" role="tabpanel" aria-labelledby="tab-overview">
                 <div class="pf-v6-l-gallery pf-m-gutter">
                 <section class="card pf-v6-c-card" aria-labelledby="installation-title">
                     <div class="pf-v6-c-card__header"><h2 id="installation-title" class="pf-v6-c-card__title pf-v6-c-title pf-m-lg"></h2></div>
@@ -47,40 +48,39 @@
                 </section>
                 </div>
                 <button id="refresh" class="pf-v6-c-button pf-m-secondary" type="button"></button>
-            </section>
+        </section>
 
-            <section id="panel-configuration" class="tab-panel pf-v6-c-page__main-section" role="tabpanel" aria-labelledby="tab-configuration" hidden>
+        <section id="panel-configuration" class="tab-panel pf-v6-c-tab-content" role="tabpanel" aria-labelledby="tab-configuration" hidden>
                 <section class="card pf-v6-c-card" aria-labelledby="configuration-title">
                     <div class="pf-v6-c-card__header"><h2 id="configuration-title" class="pf-v6-c-card__title pf-v6-c-title pf-m-lg"></h2><p id="configuration-help"></p></div>
                     <div class="pf-v6-c-card__body"><form id="configuration-form" class="pf-v6-c-form" novalidate>
-                        <div class="field pf-v6-c-form__group"><label class="pf-v6-c-form__label" for="port" id="port-label"></label><input class="pf-v6-c-form-control" id="port" name="port" inputmode="numeric" required aria-describedby="port-error"><small id="port-error" class="error" role="alert"></small></div>
-                        <div class="field pf-v6-c-form__group"><label class="pf-v6-c-form__label" for="bind" id="bind-label"></label><input class="pf-v6-c-form-control" id="bind" name="bind" required autocomplete="off" aria-describedby="bind-error"><small id="bind-error" class="error" role="alert"></small></div>
-                        <div class="field pf-v6-c-form__group"><label class="pf-v6-c-form__label" for="protected-mode" id="protected-mode-label"></label><select class="pf-v6-c-form-control" id="protected-mode" name="protected-mode" aria-describedby="protected-mode-error"><option value="yes" id="protected-yes"></option><option value="no" id="protected-no"></option></select><small id="protected-mode-error" class="error" role="alert"></small></div>
-                        <div class="field pf-v6-c-form__group"><label class="pf-v6-c-form__label" for="maxmemory" id="maxmemory-label"></label><input class="pf-v6-c-form-control" id="maxmemory" name="maxmemory" required autocomplete="off" aria-describedby="maxmemory-error"><small id="maxmemory-error" class="error" role="alert"></small></div>
+                        <div class="field pf-v6-c-form__group"><label class="pf-v6-c-form__label" for="port" id="port-label"></label><input class="pf-v6-c-form-control" id="port" name="port" inputmode="numeric" required aria-describedby="port-error"><small id="port-error" class="pf-v6-c-helper-text__item pf-m-error" role="alert"></small></div>
+                        <div class="field pf-v6-c-form__group"><label class="pf-v6-c-form__label" for="bind" id="bind-label"></label><input class="pf-v6-c-form-control" id="bind" name="bind" required autocomplete="off" aria-describedby="bind-error"><small id="bind-error" class="pf-v6-c-helper-text__item pf-m-error" role="alert"></small></div>
+                        <div class="field pf-v6-c-form__group"><label class="pf-v6-c-form__label" for="protected-mode" id="protected-mode-label"></label><select class="pf-v6-c-form-control" id="protected-mode" name="protected-mode" aria-describedby="protected-mode-error"><option value="yes" id="protected-yes"></option><option value="no" id="protected-no"></option></select><small id="protected-mode-error" class="pf-v6-c-helper-text__item pf-m-error" role="alert"></small></div>
+                        <div class="field pf-v6-c-form__group"><label class="pf-v6-c-form__label" for="maxmemory" id="maxmemory-label"></label><input class="pf-v6-c-form-control" id="maxmemory" name="maxmemory" required autocomplete="off" aria-describedby="maxmemory-error"><small id="maxmemory-error" class="pf-v6-c-helper-text__item pf-m-error" role="alert"></small></div>
                         <div class="actions"><button id="save" class="pf-v6-c-button pf-m-primary" type="submit"></button><button id="refresh-configuration" class="pf-v6-c-button pf-m-secondary" type="button"></button></div>
                         <p id="configuration-status" role="status" aria-live="polite"></p>
                     </form></div>
                 </section>
-            </section>
+        </section>
 
-            <section id="panel-messages" class="tab-panel pf-v6-c-page__main-section" role="tabpanel" aria-labelledby="tab-messages" hidden>
+        <section id="panel-messages" class="tab-panel pf-v6-c-tab-content" role="tabpanel" aria-labelledby="tab-messages" hidden>
                 <section class="card pf-v6-c-card" aria-labelledby="key-title">
                     <div class="pf-v6-c-card__header"><h2 id="key-title" class="pf-v6-c-card__title pf-v6-c-title pf-m-lg"></h2><p id="key-help"></p></div>
                     <div class="pf-v6-c-card__body">
-                    <div class="field pf-v6-c-form__group"><label class="pf-v6-c-form__label" for="key" id="key-label"></label><input class="pf-v6-c-form-control" id="key" autocomplete="off" aria-describedby="key-error"><small id="key-error" class="error" role="alert"></small></div>
-                    <div class="field pf-v6-c-form__group"><label class="pf-v6-c-form__label" for="key-value" id="key-value-label"></label><textarea class="pf-v6-c-form-control" id="key-value" rows="6" aria-describedby="key-value-error"></textarea><small id="key-value-error" class="error" role="alert"></small></div>
+                    <div class="field pf-v6-c-form__group"><label class="pf-v6-c-form__label" for="key" id="key-label"></label><input class="pf-v6-c-form-control" id="key" autocomplete="off" aria-describedby="key-error"><small id="key-error" class="pf-v6-c-helper-text__item pf-m-error" role="alert"></small></div>
+                    <div class="field pf-v6-c-form__group"><label class="pf-v6-c-form__label" for="key-value" id="key-value-label"></label><textarea class="pf-v6-c-form-control" id="key-value" rows="6" aria-describedby="key-value-error"></textarea><small id="key-value-error" class="pf-v6-c-helper-text__item pf-m-error" role="alert"></small></div>
                     <div class="actions"><button id="read-key" class="pf-v6-c-button pf-m-secondary" type="button"></button><button id="write-key" class="pf-v6-c-button pf-m-primary" type="button"></button><button id="delete-key" class="pf-v6-c-button pf-m-danger" type="button"></button></div>
                     <p id="key-status" role="status" aria-live="polite"></p>
                     </div>
                 </section>
                 <section class="card pf-v6-c-card" aria-labelledby="messages-title">
                     <div class="pf-v6-c-card__header"><h2 id="messages-title" class="pf-v6-c-card__title pf-v6-c-title pf-m-lg"></h2><p id="messages-help"></p></div>
-                    <div class="pf-v6-c-card__body"><form id="message-form" class="pf-v6-c-form" novalidate><div class="field pf-v6-c-form__group"><label class="pf-v6-c-form__label" for="message" id="message-label"></label><textarea class="pf-v6-c-form-control" id="message" name="message" rows="3" maxlength="1048576" aria-describedby="message-error"></textarea><small id="message-error" class="error" role="alert"></small></div><button id="store-message" class="pf-v6-c-button pf-m-primary" type="submit"></button><p id="message-status" role="status" aria-live="polite"></p></form>
+                    <div class="pf-v6-c-card__body"><form id="message-form" class="pf-v6-c-form" novalidate><div class="field pf-v6-c-form__group"><label class="pf-v6-c-form__label" for="message" id="message-label"></label><textarea class="pf-v6-c-form-control" id="message" name="message" rows="3" maxlength="1048576" aria-describedby="message-error"></textarea><small id="message-error" class="pf-v6-c-helper-text__item pf-m-error" role="alert"></small></div><button id="store-message" class="pf-v6-c-button pf-m-primary" type="submit"></button><p id="message-status" role="status" aria-live="polite"></p></form>
                     <div class="field pf-v6-c-form__group"><label class="pf-v6-c-form__label" for="messages-filter" id="messages-filter-label"></label><input class="pf-v6-c-form-control" id="messages-filter" autocomplete="off"></div>
                     <button id="refresh-messages" class="pf-v6-c-button pf-m-secondary" type="button"></button><p id="messages-status" role="status" aria-live="polite"></p><ul id="messages-list" class="pf-v6-c-list"></ul></div>
                 </section>
-            </section>
-        </div>
+        </section>
     </main>
     </div>
     <script src="valkey-theme.js"></script>

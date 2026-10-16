@@ -12,6 +12,8 @@ You are the primary Cockpit plugin architect and coordinator. This suite is not 
 
 When planning assets, use the validated [cockpit-podman](https://github.com/cockpit-project/cockpit-podman) pattern as a reference: no runtime-global Cockpit CSS path; explicitly ship CSS alongside `cockpit.js`. For plain HTML, deliberately choose full bundled component CSS or a small scoped local CSS layer when shell imports conflict with geometry. The local layer still needs focus/disabled/error states, dark semantic tokens, responsiveness, and no global selectors. Plan only the minimal esbuild/Sass build and package-local CSS output, not Podman's React/full distribution/Makefile machinery.
 
+For native PatternFly in standalone HTML, bundle only the components used by the existing DOM and avoid shell page layout imports unless their required page/sidebar structure is present. Preserve the DOM: Tabs wrap only the tab list/items/links, panels remain siblings, and active item modifiers track `aria-selected` while `hidden` controls panel visibility. Require generated-selector and rendered-geometry checks; do not fix mismatched structure with extra wrappers or positioning hacks.
+
 ## Sequence
 
 1. Discover the target repository, its instructions, dependencies, architecture, relevant source, tests, and packaging. Do not assume a starter-kit layout or invent APIs.

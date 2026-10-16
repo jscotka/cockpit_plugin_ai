@@ -116,6 +116,9 @@ Node.js 22+ and npm 10+, and its generated stylesheet bundles the PatternFly v6
 components it uses rather than assuming that `cockpit.js` injects CSS; **the API
 and transport library does not provide a runtime global stylesheet**.
 
+![Valkey overview showing service and metrics information](valkey.png)
+*Valkey service and metrics example.*
+
 ### Cockpit configuration: schema as a contract
 
 [`examples/cockpit-config`](examples/cockpit-config) edits the active
@@ -127,6 +130,9 @@ and reports a successful file write separately from a failed
 types, ranges, defaults, help, examples, and editability. The installed
 `cockpit.conf(5)` page is only a non-blocking comparison for documentation drift;
 it does not invent controls.
+
+![Cockpit configuration editor showing schema-backed settings](cockpit-config.png)
+*Cockpit configuration editor example.*
 
 Together, these examples point to a method: expose a real interface, make
 privilege and failure boundaries visible, and keep the scope honest. The same

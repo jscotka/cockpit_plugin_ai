@@ -1,14 +1,14 @@
-/* cockpit-config asset revision: cockpit-config-v3 */
+/* cockpit-config asset revision: cockpit-config-v5 */
 "use strict";
 (() => {
   // schema.json
   var schema_default = {
-    schemaRevision: 2,
-    compatibility: "cockpit-config-schema-v2",
+    schemaRevision: 4,
+    compatibility: "cockpit-config-schema-v4",
     source: "Cockpit configuration editor safe manifest; cockpit.conf(5) is comparison-only",
     sections: [
       { name: "WebService", options: [
-        { key: "Origins", type: "text", editable: true, validation: { kind: "origins", maxLength: 4096, allowEmpty: true }, help: "Space-separated origins (scheme, host, optional port; wildcards are supported). Leave empty to unset. Security: restricting this incorrectly can lock out browsers or allow an untrusted origin.", examples: ["https://example.com https://*.example.com"], placeholder: "https://example.com", securityRationale: "Origin syntax is constrained and dangerous changes are called out." },
+        { key: "Origins", type: "text", securitySensitive: true, securityWarning: "Review allowed origins carefully: an incorrect value can lock out browsers or allow an untrusted origin.", editable: true, validation: { kind: "origins", maxLength: 4096, allowEmpty: true }, help: "Space-separated origins (scheme, host, optional port; wildcards are supported). Leave empty to unset. Security: restricting this incorrectly can lock out browsers or allow an untrusted origin.", examples: ["https://example.com https://*.example.com"], placeholder: "https://example.com", securityRationale: "Origin syntax is constrained and dangerous changes are called out." },
         { key: "ProtocolHeader", type: "text", editable: true, validation: { kind: "header", maxLength: 256, allowEmpty: true }, help: "Header whose value identifies TLS behind a trusted reverse proxy. Leave empty to unset. Security: only trust a header that outside clients cannot set.", examples: ["X-Forwarded-Proto"], placeholder: "X-Forwarded-Proto", securityRationale: "Header names are strictly validated and proxy trust risk is explicit." },
         { key: "ForwardedForHeader", type: "text", editable: true, validation: { kind: "header", maxLength: 256, allowEmpty: true }, help: "Header that identifies the real client origin behind a trusted reverse proxy. Leave empty to unset. Security: only trust a header that outside clients cannot set.", examples: ["X-Forwarded-For"], placeholder: "X-Forwarded-For", securityRationale: "Header names are strictly validated and proxy trust risk is explicit." },
         { key: "LoginTitle", type: "text", editable: true, validation: { kind: "line", maxLength: 256, allowEmpty: true }, help: "Browser title for the login screen. Leave empty to unset. Security: this is displayed to users and must not contain control characters.", examples: ["Cockpit"], placeholder: "Cockpit", securityRationale: "Displayed text is bounded and control characters are rejected." },
@@ -289,26 +289,31 @@
     if (!editable)
       throw new DomCompatibilityError(translate("Cockpit configuration assets are incompatible: the editable grid is required."));
     editable.replaceChildren();
-    const groups = /* @__PURE__ */ new Map();
+    const sections = /* @__PURE__ */ new Map();
     const inputId = (item) => `option-${item.section}-${item.key}`.replace(/[^A-Za-z0-9_-]/g, "-");
+    const sectionId = (item) => `section-${item.section}`;
     for (const item of schema) {
-      const target = editable, group = item.section;
-      if (!groups.has(group)) {
+      let section = sections.get(item.section);
+      if (!section) {
         const card = document2.createElement("section");
         card.className = "pf-v6-c-card";
-        card.setAttribute("aria-labelledby", `section-${item.section}`);
+        card.setAttribute("aria-labelledby", sectionId(item));
         const header = document2.createElement("div");
         header.className = "pf-v6-c-card__header";
         const title = document2.createElement("h2");
         title.className = "pf-v6-c-card__title pf-v6-c-title pf-m-lg";
-        title.id = `section-${item.section}`;
+        title.id = sectionId(item);
         title.textContent = `[${item.section}]`;
         header.append(title);
         const body = document2.createElement("div");
         body.className = "pf-v6-c-card__body";
+        const form = document2.createElement("div");
+        form.className = "pf-v6-c-form";
+        body.append(form);
         card.append(header, body);
-        target.append(card);
-        groups.set(group, body);
+        editable.append(card);
+        section = { form };
+        sections.set(item.section, section);
       }
       const field = document2.createElement("div");
       field.className = "pf-v6-c-form__group";
@@ -323,6 +328,15 @@
       input.dataset.option = option;
       input.setAttribute("aria-describedby", help.id);
       input.type = item.type === "boolean" ? "checkbox" : item.type === "integer" ? "number" : "text";
+      if (item.securitySensitive) {
+        const warning = document2.createElement("p");
+        warning.className = "pf-v6-c-form__helper-text pf-m-warning";
+        warning.id = `${id2}-security`;
+        warning.textContent = translate(item.securityWarning);
+        input.dataset.securityHelp = warning.id;
+        input.setAttribute("aria-describedby", `${help.id} ${warning.id}`);
+        field.append(warning);
+      }
       if (item.validation?.maxLength)
         input.maxLength = item.validation.maxLength;
       if (item.type === "integer") {
@@ -337,30 +351,31 @@
         input.checked = parsed.presence[option] ? parsed.values[option] === "true" : item.default === true;
       input.addEventListener("input", () => edited.add(option));
       input.addEventListener("change", () => edited.add(option));
+      const label = document2.createElement("label");
+      label.htmlFor = id2;
       if (item.type === "boolean") {
         const check = document2.createElement("div");
         check.className = "pf-v6-c-check";
-        const label = document2.createElement("label");
         label.className = "pf-v6-c-check__label";
-        label.htmlFor = id2;
-        label.textContent = item.key;
+        label.append(Object.assign(document2.createElement("span"), { className: "pf-v6-c-form__label-text", textContent: item.key }));
         check.append(input, label);
         field.append(check, help);
       } else {
-        const label = document2.createElement("label");
         label.className = "pf-v6-c-form__label";
-        label.htmlFor = id2;
-        label.textContent = item.key;
+        const labelText = document2.createElement("span");
+        labelText.className = "pf-v6-c-form__label-text";
+        labelText.textContent = item.key;
+        label.append(labelText);
         field.append(label, help, input);
       }
-      groups.get(group).append(field);
+      section.form.append(field);
     }
   }
 
   // cockpit-config.js
   var _ = cockpit.gettext;
   var DEFAULT_PATH = "/etc/cockpit/cockpit.conf";
-  var ASSET_REVISION = "cockpit-config-v3";
+  var ASSET_REVISION = "cockpit-config-v5";
   var $ = (id2) => document.getElementById(id2);
   var state = { schema: STATIC_SCHEMA, content: null, file: null, path: DEFAULT_PATH, presence: {}, initial: {}, busy: false, domReady: false, loaded: false, edited: /* @__PURE__ */ new Set() };
   var errorText = (ex) => ex?.message || ex?.problem || String(ex);
@@ -461,16 +476,17 @@
       input.setAttribute("aria-invalid", error ? "true" : "false");
       const errorId = `${input.id}-error`;
       document.getElementById(errorId)?.remove();
+      const describedBy = [input.dataset.securityHelp, `${input.id}-help`].filter(Boolean).join(" ");
       if (error) {
         const node = document.createElement("p");
         node.id = errorId;
         node.className = "config-field-error";
         node.textContent = _(error);
         input.closest(".pf-v6-c-form__group").append(node);
-        input.setAttribute("aria-describedby", `${input.id}-help ${errorId}`);
+        input.setAttribute("aria-describedby", `${describedBy} ${errorId}`);
         first ||= input;
       } else
-        input.setAttribute("aria-describedby", `${input.id}-help`);
+        input.setAttribute("aria-describedby", describedBy);
     }
     first?.focus();
     return Boolean(first);

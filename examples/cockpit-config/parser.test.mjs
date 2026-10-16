@@ -134,4 +134,10 @@ test("rejects unsafe or malformed schema manifests", () => {
     assert.throws(() => validateSchema(valid({ validation: {} })), /Validation metadata/);
     assert.throws(() => validateSchema(valid({ securityRationale: "" })), /Security rationale/);
     assert.throws(() => validateSchema(valid({ editable: false })), /must be editable/);
+     assert.doesNotThrow(() => validateSchema(valid({ category: "legacy-ui-only", categoryOrder: 0 })));
+});
+
+test("checked-in options omit UI grouping metadata and preserve schema order", () => {
+    assert.ok(STATIC_SCHEMA.every(item => item.category === undefined && item.categoryOrder === undefined));
+    assert.deepEqual(STATIC_SCHEMA.filter(item => item.section === "WebService").map(item => item.key), ["Origins", "ProtocolHeader", "ForwardedForHeader", "LoginTitle", "LoginTo", "RequireHost", "AllowMultiHost", "MaxStartups", "MaxConcurrentConnections", "AllowUnencrypted", "UrlRoot", "ClientCertAuthentication", "Shell", "CustomLoginPage"]);
 });

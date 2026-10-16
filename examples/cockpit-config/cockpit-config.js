@@ -5,7 +5,7 @@ import { DomCompatibilityError, renderConfiguration } from "./render.js";
 
 const _ = cockpit.gettext;
 const DEFAULT_PATH = "/etc/cockpit/cockpit.conf";
-const ASSET_REVISION = "cockpit-config-v3";
+const ASSET_REVISION = "cockpit-config-v5";
 const $ = id => document.getElementById(id);
 const state = { schema: STATIC_SCHEMA, content: null, file: null, path: DEFAULT_PATH, presence: {}, initial: {}, busy: false, domReady: false, loaded: false, edited: new Set() };
 const errorText = ex => ex?.message || ex?.problem || String(ex);
@@ -90,7 +90,7 @@ function render(schema, parsed) {
 }
 
 function formChanges() { const changes = {}; for (const input of document.querySelectorAll("[data-option]")) if (state.edited.has(input.dataset.option)) changes[input.dataset.option] = input.type === "checkbox" ? (input.checked ? "true" : "false") : input.value; return changes; }
-function showValidation(errors) { let first = null; for (const input of document.querySelectorAll("[data-option]")) { const error = errors[input.dataset.option]; input.setAttribute("aria-invalid", error ? "true" : "false"); const errorId = `${input.id}-error`; document.getElementById(errorId)?.remove(); if (error) { const node = document.createElement("p"); node.id = errorId; node.className = "config-field-error"; node.textContent = _(error); input.closest(".pf-v6-c-form__group").append(node); input.setAttribute("aria-describedby", `${input.id}-help ${errorId}`); first ||= input; } else input.setAttribute("aria-describedby", `${input.id}-help`); } first?.focus(); return Boolean(first); }
+function showValidation(errors) { let first = null; for (const input of document.querySelectorAll("[data-option]")) { const error = errors[input.dataset.option]; input.setAttribute("aria-invalid", error ? "true" : "false"); const errorId = `${input.id}-error`; document.getElementById(errorId)?.remove(); const describedBy = [input.dataset.securityHelp, `${input.id}-help`].filter(Boolean).join(" "); if (error) { const node = document.createElement("p"); node.id = errorId; node.className = "config-field-error"; node.textContent = _(error); input.closest(".pf-v6-c-form__group").append(node); input.setAttribute("aria-describedby", `${describedBy} ${errorId}`); first ||= input; } else input.setAttribute("aria-describedby", describedBy); } first?.focus(); return Boolean(first); }
 
 async function load() {
     setBusy(true); state.loaded = false; state.edited.clear(); state.file = null; status(_("Loading cockpit.conf and its schema…"));

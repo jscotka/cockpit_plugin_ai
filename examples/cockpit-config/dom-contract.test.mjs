@@ -22,7 +22,7 @@ test("every literal DOM lookup has a matching HTML element", async () => {
 });
 
 test("the startup contract includes the revision marker and disabled Save", () => {
-    assert.match(html, /data-cockpit-config-revision="cockpit-config-v3"/);
+    assert.match(html, /data-cockpit-config-revision="cockpit-config-v5"/);
     assert.match(html, /id="save"[^>]*disabled/);
 });
 
@@ -43,19 +43,24 @@ test("Save remains blocked after load failure and before DOM readiness", () => {
 
 test("all schema options render as ordered editable section cards", () => {
     class Node {
-        constructor(tag) { this.tagName = tag.toUpperCase(); this.children = []; this.dataset = {}; this.classList = { toggle() {} }; }
+        constructor(tag) { this.tagName = tag.toUpperCase(); this.children = []; this.dataset = {}; this.attributes = {}; this.classList = { toggle() {} }; }
         append(...nodes) { this.children.push(...nodes); }
         replaceChildren(...nodes) { this.children = nodes; }
-        setAttribute() {}
+        setAttribute(name, value) { this.attributes[name] = value; }
+        getAttribute(name) { return this.attributes[name]; }
         addEventListener() {}
     }
     const root = new Node("main"), editable = new Node("div"); editable.id = "editable-grid"; root.append(editable);
     const document = { createElement: tag => new Node(tag), getElementById: id => [root, editable].find(node => node.id === id) };
-    const schema = [{ section: "Session", key: "IdleTimeout", type: "integer", editable: true, help: "Idle timeout", min: 0, max: 60 }, { section: "WebService", key: "Origins", type: "text", editable: true, help: "Origins" }];
+    const schema = [{ section: "Session", key: "IdleTimeout", type: "integer", editable: true, help: "Idle timeout", min: 0, max: 60 }, { section: "Session", key: "WarnBeforeConnecting", type: "boolean", editable: true, help: "Warn" }, { section: "WebService", key: "Origins", type: "text", editable: true, help: "Origins", securitySensitive: true, securityWarning: "Review origins" }];
     renderConfiguration(schema, { values: { "Session.IdleTimeout": "15", "WebService.Origins": "https://example.test" }, presence: {} }, { document, translate: text => text, edited: new Set() });
     assert.equal(editable.children[0].className, "pf-v6-c-card");
     assert.deepEqual(editable.children.map(node => node.children[0].children[0].textContent), ["[Session]", "[WebService]"]);
-    assert.equal(editable.children[0].children[1].children.length, 1);
+    assert.equal(editable.children[0].children[1].children[0].children.length, 2);
+    assert.deepEqual(editable.children[0].children[1].children[0].children.map(node => node.children[0].tagName === "DIV" ? node.children[0].children[1].children[0].textContent : node.children[0].children[0].textContent), ["IdleTimeout", "WarnBeforeConnecting"]);
+    assert.equal(editable.children[0].getAttribute("aria-labelledby"), "section-Session");
+    const originsField = editable.children[1].children[1].children[0].children[0];
+    assert.equal(originsField.children[1].children[0].textContent, "Origins");
 });
 
 test("the checked-in schema is entirely editable and preserves section order", () => {
@@ -97,6 +102,14 @@ test("boolean controls use an inline accessible check structure", async () => {
         assert.match(source, /check\.append\(input, label\).*field\.append\(check, help\)/s);
         assert.match(source, /field\.append\(label, help, input\)/);
     }
+});
+
+test("section headings and sensitive helper text are accessible", async () => {
+    const source = await readFile(new URL("./render.js", import.meta.url), "utf8");
+    assert.match(source, /aria-labelledby/);
+    assert.match(source, /pf-v6-c-form__label-text/);
+    assert.match(source, /securityWarning/);
+    assert.doesNotMatch(source, /categoryNames|categoryOrder|pf-v6-c-form__section/);
 });
 
 test("save is guarded when loading did not produce a file handle", async () => {

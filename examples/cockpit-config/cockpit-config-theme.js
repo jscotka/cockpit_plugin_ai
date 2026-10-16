@@ -1,4 +1,4 @@
-/* cockpit-config asset revision: cockpit-config-v3 */
+/* cockpit-config asset revision: cockpit-config-v5 */
 "use strict";
 (() => {
   // ../../../pkg/lib/cockpit-dark-theme.ts

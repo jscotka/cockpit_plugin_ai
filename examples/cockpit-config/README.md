@@ -163,7 +163,7 @@ manifest deliberately:
   explicit safe `min` and `max` bounds. Every schema option in this example is
   editable, so add or change an option only together with an explicit validator
   and an updated security rationale.
-* Increment `schemaRevision` and update `compatibility` when the manifest
+ * Increment `schemaRevision` and update `compatibility` when the manifest
   contract changes. Keep the source description identifying `cockpit.conf(5)`
   as comparison-only.
 * Run `npm run test` and `npm run build` in this directory. Install or deploy
@@ -186,8 +186,9 @@ or merge multiple configuration files.
 All 21 options currently defined by [`schema.json`](schema.json) are editable.
 The page presents one **Configuration options** view. It renders one card per
 schema section in this order: **[WebService]**, **[Session]**, **[Log]**, and
-**[OAuth]**; options within each card follow their order in the schema. There
-is no **Read-only** tab or read-only grid. The schema is the complete scope of the
+**[OAuth]**; options are rendered directly in each card and follow their order in
+the schema. The UI does not add category headers or reorder options. There is no
+**Read-only** tab or read-only grid. The schema is the complete scope of the
 editor: directives not listed there are not rendered or changed. This is not a
 general-purpose editor for every `cockpit.conf(5)` directive.
 

@@ -1,7 +1,7 @@
 {
     "private": true,
     "type": "module",
-    "cockpitConfigRevision": "cockpit-config-v3",
+    "cockpitConfigRevision": "cockpit-config-v5",
     "dependencies": {
         "@patternfly/patternfly": "6.6.1",
         "esbuild": "0.28.2",
